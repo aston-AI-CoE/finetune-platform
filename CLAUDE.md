@@ -38,10 +38,12 @@ npx shadcn@latest add [component-name]    # Add new shadcn/ui components
 
 The application follows a **4-page wizard-style workflow**:
 
-1. **Project Setup** (`setup`) - Customer intentions & policy guidelines (chat-style UI with auto-loaded messages)
+1. **Project Setup** (`setup`) - Intent classification model definition (chat-style UI with auto-loaded messages for e-commerce support with 356 intent categories)
 2. **Data Setup** (`data`) - Upload or generate synthetic training data
-3. **Fine-tuning** (`finetune`) - 4-step training wizard (auto-populated guidelines, data, parameters, training)
+3. **Fine-tuning** (`finetune`) - 4-step training wizard (auto-populated guidelines, output format checker, reasoning effort, latency SLA, data, parameters, training)
 4. **Dashboard** (`dashboard`) - Results with metrics, charts, and comparisons
+
+**Demo Scenario**: Intent classification for e-commerce customer support (Coupang-style) with 356 predefined intent categories, 95% SLA for intent accuracy, and multi-intent priority handling.
 
 Navigation is handled via Zustand state (`project.currentPage`), not Next.js routing.
 
@@ -82,8 +84,8 @@ finetune-platform/
 ### Key Features
 
 #### 1. Auto-loaded Content
-- **Page 1 (Setup)**: Customer support guidelines automatically load on mount with staggered timing
-- **Page 3 (Fine-tuning)**: Training guidelines auto-populate in Step 1 from the same template
+- **Page 1 (Setup)**: Intent classification guidelines automatically load on mount with staggered timing for e-commerce customer support scenario
+- **Page 3 (Fine-tuning)**: Training guidelines auto-populate in Step 1 with intent classification rules, plus output format checker (Regex/JSON), reasoning effort selector (Low/Med/High), and latency SLA configuration
 
 #### 2. Project Sidebar (ChatGPT-style)
 - **Project List**: Shows multiple demo projects with names and dates
@@ -158,9 +160,10 @@ STAGES.forEach((_, index) => {
 Each page is easy to modify by editing its component file:
 
 - **Page 1 (Setup)**: Edit `components/pages/SetupPage.tsx`
-  - Modify `INITIAL_MESSAGES` array for chat content (auto-loads on mount)
+  - Modify `JOB_DESCRIPTION` for the intent classification model definition
+  - Update `SIMPLE_PROMPT` and `DETAILED_PROMPT` for scenario-specific requirements
+  - Current scenario: 356-category intent classification for e-commerce customer support (Coupang-style)
   - Adjust message delays for auto-scroll timing (500-2600ms intervals)
-  - Messages include general guidelines, individual support cases, and examples
 
 - **Page 2 (Data)**: Edit `components/pages/DataPage.tsx`
   - Change `DSR1_STAGES` and `GPTOSS_STAGES` for progress steps
@@ -169,14 +172,17 @@ Each page is easy to modify by editing its component file:
 - **Page 3 (Fine-tune)**: Edit `components/pages/FinetunePage.tsx`
   - Update `MODELS` array for model selection
   - Edit `TEMPLATE_GUIDELINES` for default guidelines (auto-populates on mount in Step 1)
-  - Guidelines match SetupPage content for consistency
+  - Current guidelines focus on: intent classification, intent vs request distinction, multi-intent priority, keyword extraction, filtering irrelevant utterances
+  - Configure output format checker: Regex pattern or JSON schema validation
+  - Set reasoning effort level: Low (quick), Medium (balanced), High (deep analysis)
+  - Define latency SLA in milliseconds for inference targets
   - Modify `TRAINING_LOGS` for training output
 
 - **Page 4 (Dashboard)**: Edit `components/pages/DashboardPage.tsx`
   - Update `TRACE_DATA` for evaluation examples
   - Metrics are in Zustand store (`store/useStore.ts`)
 
-**Important**: Page 1 and Page 3 Step 1 use the same guideline content. If you update one, update the other to maintain consistency.
+**Important**: Page 1 (SetupPage) defines the job description which informs Page 3 Step 1 (FinetunePage) guidelines. Keep scenario alignment consistent across both pages.
 
 ### Changing Metrics
 

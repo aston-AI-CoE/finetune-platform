@@ -33,32 +33,36 @@ const MODELS = [
 
 const TEMPLATE_GUIDELINES: Guideline[] = [
   {
-    id: 'general_guidelines',
-    text: `Always start your response with <analysis> and <intent> tags. Greet politely with "Thank you for reaching out" or similar. If the customer appears dissatisfied, apologize for the inconvenience. Re-state any numeric data in words. Maintain a polite and gender-neutral tone throughout.`
+    id: 'analysis_output',
+    text: 'Always structure your response with <analysis> tags containing your reasoning process, followed by <intent> tags with the classified intent(s).'
   },
   {
-    id: 'cancel_order',
-    text: 'If intent = cancel_order: Ask the customer for the reason they want to cancel. Inform them there is a $4.99 cancellation fee if the order is less than 2 days from delivery. If delivery is 2 or more days away, cancellation is free.'
+    id: 'intent_classification',
+    text: 'Classify customer utterances into one of 356 predefined intent categories. Reference the comprehensive intent classification table and hierarchical structure (depth1~4) for accurate categorization.'
   },
   {
-    id: 'change_order',
-    text: 'If intent = change_order: Changes can only be made to the same brand. No changes are allowed if delivery is less than 2 days away. If within the allowed timeframe, ask what specifically they would like to change.'
+    id: 'intent_vs_request',
+    text: 'Distinguish between customer intent (root cause of inquiry) and request (desired action). Always prioritize identifying the underlying intent over the surface-level request.'
   },
   {
-    id: 'change_shipping_address',
-    text: 'If intent = change_shipping_address: Address changes can only be made for new orders that haven\'t shipped yet. If order has already shipped, inform customer the address cannot be changed.'
+    id: 'multi_intent_priority',
+    text: 'When multiple intents are detected in a single utterance, apply priority hierarchy: P1 (primary intent) > P2 (secondary intent). Focus on the root cause over related topics.'
   },
   {
-    id: 'check_cancellation_fee',
-    text: 'If intent = check_cancellation_fee: If delivery is 2 or more days away, cancellation is FREE. If delivery is less than 2 days away, $4.99 cancellation fee applies.'
+    id: 'keyword_extraction',
+    text: 'Detect and extract critical keywords including Intent_tags. Pay attention to domain-specific terminology: Coupang Eats, Coupang Play, WOW Membership, Rocket Mobile.'
   },
   {
-    id: 'track_order',
-    text: 'If intent = track_order: Inform the customer they can see the delivery date in their personal area. Let them know they can view detailed order whereabouts (tracking updates) in their personal area. Ask for order ID if they need specific assistance.'
+    id: 'filter_irrelevant',
+    text: 'Filter out irrelevant utterances including simple acknowledgments (OK, thanks), feedback without actionable intent, and reactions. These should not be classified as having intent.'
   },
   {
-    id: 'track_refund',
-    text: 'If intent = track_refund: Ask for the refund case ID (customer should have received it via email). If they cannot find the email, offer to help locate it using order information.'
+    id: 'accuracy_target',
+    text: 'Maintain 95%+ accuracy for intent detection and 90%+ for request classification. Flag ambiguous cases and provide confidence scores when multiple intents are possible.'
+  },
+  {
+    id: 'context_awareness',
+    text: 'Consider complete utterance context including temporal sequencing. For physical defects/damage, prioritize vendor-responsibility. Never rely solely on keyword matching without understanding full context.'
   },
 ];
 
@@ -129,6 +133,9 @@ export function FinetunePage() {
   const [strategies, setStrategies] = useState<string[]>(['RL']);
   const [algorithms, setAlgorithms] = useState<string[]>(['GRPO']);
   const [rlefRegex, setRlefRegex] = useState('<intent>(.*?)</intent>');
+  const [outputFormat, setOutputFormat] = useState<'regex' | 'json'>('regex');
+  const [reasoningEffort, setReasoningEffort] = useState<'low' | 'medium' | 'high'>('medium');
+  const [latencySLA, setLatencySLA] = useState('500');
   const [training, setTraining] = useState(false);
   const [isMounted, setIsMounted] = useState(false);
 
@@ -274,7 +281,7 @@ export function FinetunePage() {
 
                 <div className="flex gap-2">
                   <Button onClick={loadTemplate} variant="outline" size="sm">
-                    Customer Support
+                    Intent Classification
                   </Button>
                   <Button variant="outline" size="sm" disabled>
                     Follow document context
@@ -286,6 +293,7 @@ export function FinetunePage() {
 
                 <Card className="p-6 bg-zinc-800 border-zinc-700">
                   <div className="space-y-4">
+                    <div className="text-sm font-medium text-zinc-300 mb-2">Evaluation Guidelines</div>
                     {guidelines.map((guideline) => (
                       <div
                         key={guideline.id}
@@ -316,6 +324,116 @@ export function FinetunePage() {
                         <Plus className="w-4 h-4" />
                       </Button>
                     </div>
+                  </div>
+                </Card>
+
+                <Card className="p-6 bg-zinc-800 border-zinc-700 space-y-6">
+                  <div>
+                    <label className="text-sm font-medium mb-3 block">Expected Output Format Checker</label>
+                    <div className="grid grid-cols-2 gap-3">
+                      <button
+                        onClick={() => setOutputFormat('regex')}
+                        className={cn(
+                          'p-4 rounded-lg border-2 transition-all text-left',
+                          outputFormat === 'regex'
+                            ? 'border-[#00A99D] bg-[#00A99D]/10'
+                            : 'border-zinc-700 bg-zinc-900 hover:border-zinc-600'
+                        )}
+                      >
+                        <div className="flex items-center justify-between mb-2">
+                          <span className="font-medium">Regex Pattern</span>
+                          {outputFormat === 'regex' && (
+                            <Check className="w-4 h-4 text-[#00A99D]" />
+                          )}
+                        </div>
+                        <p className="text-xs text-zinc-400">Extract intent using regex pattern matching</p>
+                      </button>
+                      <button
+                        onClick={() => setOutputFormat('json')}
+                        className={cn(
+                          'p-4 rounded-lg border-2 transition-all text-left',
+                          outputFormat === 'json'
+                            ? 'border-[#00A99D] bg-[#00A99D]/10'
+                            : 'border-zinc-700 bg-zinc-900 hover:border-zinc-600'
+                        )}
+                      >
+                        <div className="flex items-center justify-between mb-2">
+                          <span className="font-medium">JSON Schema</span>
+                          {outputFormat === 'json' && (
+                            <Check className="w-4 h-4 text-[#00A99D]" />
+                          )}
+                        </div>
+                        <p className="text-xs text-zinc-400">Validate structured JSON output format</p>
+                      </button>
+                    </div>
+
+                    {outputFormat === 'regex' && (
+                      <div className="mt-4">
+                        <label className="text-sm text-zinc-400 mb-2 block">Regex Pattern</label>
+                        <Input
+                          value={rlefRegex}
+                          onChange={(e) => setRlefRegex(e.target.value)}
+                          placeholder="e.g., <intent>(.*?)</intent>"
+                          className="font-mono text-sm bg-zinc-900 border-zinc-700"
+                        />
+                      </div>
+                    )}
+
+                    {outputFormat === 'json' && (
+                      <div className="mt-4">
+                        <label className="text-sm text-zinc-400 mb-2 block">JSON Schema Preview</label>
+                        <div className="p-3 bg-zinc-950 rounded-lg border border-zinc-700 font-mono text-xs text-zinc-400">
+                          {`{\n  "intent": "string",\n  "confidence": "number",\n  "keywords": ["string"]\n}`}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+
+                  <div>
+                    <label className="text-sm font-medium mb-3 block">Reasoning Effort</label>
+                    <div className="grid grid-cols-3 gap-3">
+                      {(['low', 'medium', 'high'] as const).map((level) => (
+                        <button
+                          key={level}
+                          onClick={() => setReasoningEffort(level)}
+                          className={cn(
+                            'p-4 rounded-lg border-2 transition-all text-center',
+                            reasoningEffort === level
+                              ? 'border-[#00A99D] bg-[#00A99D]/10'
+                              : 'border-zinc-700 bg-zinc-900 hover:border-zinc-600'
+                          )}
+                        >
+                          <div className="flex items-center justify-center mb-2">
+                            <span className="font-medium capitalize">{level}</span>
+                          </div>
+                          {reasoningEffort === level && (
+                            <Check className="w-4 h-4 text-[#00A99D] mx-auto" />
+                          )}
+                        </button>
+                      ))}
+                    </div>
+                    <p className="text-xs text-zinc-400 mt-3">
+                      {reasoningEffort === 'low' && 'Quick classification with minimal chain-of-thought reasoning'}
+                      {reasoningEffort === 'medium' && 'Balanced approach with moderate reasoning depth'}
+                      {reasoningEffort === 'high' && 'Deep analysis with extensive chain-of-thought reasoning'}
+                    </p>
+                  </div>
+
+                  <div>
+                    <label className="text-sm font-medium mb-3 block">Reasoning Latency SLA</label>
+                    <div className="flex items-center gap-4">
+                      <Input
+                        type="number"
+                        value={latencySLA}
+                        onChange={(e) => setLatencySLA(e.target.value)}
+                        placeholder="500"
+                        className="flex-1 bg-zinc-900 border-zinc-700"
+                      />
+                      <span className="text-sm text-zinc-400">milliseconds</span>
+                    </div>
+                    <p className="text-xs text-zinc-400 mt-2">
+                      Target latency for inference. Higher reasoning effort may require higher latency SLA.
+                    </p>
                   </div>
                 </Card>
               </>
@@ -477,8 +595,20 @@ export function FinetunePage() {
                       <p className="font-medium">{guidelines.length} RLAIF rules</p>
                     </div>
                     <div>
+                      <p className="text-sm text-zinc-400">Output Format</p>
+                      <p className="font-medium capitalize">{outputFormat}</p>
+                    </div>
+                    <div>
                       <p className="text-sm text-zinc-400">RLEF Pattern</p>
-                      <p className="font-mono text-xs">{rlefRegex}</p>
+                      <p className="font-mono text-xs">{outputFormat === 'regex' ? rlefRegex : 'JSON Schema'}</p>
+                    </div>
+                    <div>
+                      <p className="text-sm text-zinc-400">Reasoning Effort</p>
+                      <p className="font-medium capitalize">{reasoningEffort}</p>
+                    </div>
+                    <div>
+                      <p className="text-sm text-zinc-400">Latency SLA</p>
+                      <p className="font-medium">{latencySLA}ms</p>
                     </div>
                   </div>
                 </Card>

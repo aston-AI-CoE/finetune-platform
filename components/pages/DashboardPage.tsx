@@ -255,72 +255,107 @@ export function DashboardPage() {
       <div className="flex-1 overflow-y-auto p-6">
         <div className="max-w-7xl mx-auto space-y-6">
           {/* Metric Cards */}
-          <div className="grid grid-cols-3 gap-4">
+          <div className="grid grid-cols-3 gap-6">
             {/* Intent Accuracy */}
-            <Card className="p-6 bg-zinc-800 border-zinc-700">
-              <div className="space-y-2">
-                <p className="text-sm text-zinc-400">Intent Accuracy</p>
-                <div className="flex items-baseline gap-2">
-                  <p className="text-3xl font-bold">{metrics.trained.intent}%</p>
+            <Card className="p-8 bg-gradient-to-br from-zinc-800 to-zinc-900 border-2 border-zinc-700 hover:border-[#00A99D] transition-all shadow-lg">
+              <div className="space-y-3">
+                <p className="text-sm font-semibold text-zinc-400 uppercase tracking-wider">Intent Accuracy</p>
+                <div className="flex items-baseline gap-3">
+                  <p className="text-5xl font-black text-white">{metrics.trained.intent}%</p>
                   {(() => {
                     const { percentage, isPositive } = calculateDelta(
                       metrics.trained.intent,
                       metrics.gpt4o.intent
                     );
                     return (
-                      <div className={`flex items-center text-sm ${isPositive ? 'text-green-400' : 'text-red-400'}`}>
-                        {isPositive ? <TrendingUp className="w-3 h-3" /> : <TrendingDown className="w-3 h-3" />}
+                      <div className={`flex items-center gap-1 text-lg font-bold ${isPositive ? 'text-green-400' : 'text-red-400'}`}>
+                        {isPositive ? <TrendingUp className="w-5 h-5" /> : <TrendingDown className="w-5 h-5" />}
                         {percentage}%
                       </div>
                     );
                   })()}
                 </div>
-                <p className="text-xs text-zinc-500">vs GPT-4o: {metrics.gpt4o.intent}%</p>
+                <div className="pt-2 border-t border-zinc-700">
+                  <p className="text-sm font-medium text-zinc-400">
+                    vs GPT-4o <span className="text-blue-400 font-bold">(90%)</span>
+                  </p>
+                </div>
               </div>
             </Card>
 
             {/* Latency */}
-            <Card className="p-6 bg-zinc-800 border-zinc-700">
-              <div className="space-y-2">
-                <p className="text-sm text-zinc-400">Latency (p50)</p>
-                <div className="flex items-baseline gap-2">
-                  <p className="text-3xl font-bold">{metrics.trained.p50}ms</p>
+            <Card className="p-8 bg-gradient-to-br from-zinc-800 to-zinc-900 border-2 border-zinc-700 hover:border-[#00A99D] transition-all shadow-lg">
+              <div className="space-y-3">
+                <p className="text-sm font-semibold text-zinc-400 uppercase tracking-wider">Latency (p50)</p>
+                <div className="flex items-baseline gap-3">
+                  <p className="text-5xl font-black text-white">{metrics.trained.p50}<span className="text-2xl">ms</span></p>
                   {(() => {
                     const delta = metrics.trained.p50 - metrics.gpt4o.p50;
                     const percentage = ((delta / metrics.gpt4o.p50) * 100).toFixed(1);
                     const isImprovement = delta < 0; // Lower is better
                     return (
-                      <div className={`flex items-center text-sm ${isImprovement ? 'text-green-400' : 'text-red-400'}`}>
-                        {isImprovement ? <TrendingDown className="w-3 h-3" /> : <TrendingUp className="w-3 h-3" />}
+                      <div className={`flex items-center gap-1 text-lg font-bold ${isImprovement ? 'text-green-400' : 'text-red-400'}`}>
+                        {isImprovement ? <TrendingDown className="w-5 h-5" /> : <TrendingUp className="w-5 h-5" />}
                         {Math.abs(parseFloat(percentage))}%
                       </div>
                     );
                   })()}
                 </div>
-                <p className="text-xs text-zinc-500">vs GPT-4o: {metrics.gpt4o.p50}ms</p>
+                <div className="pt-2 border-t border-zinc-700">
+                  <p className="text-sm font-medium text-zinc-400">
+                    vs GPT-4o <span className="text-blue-400 font-bold">({metrics.gpt4o.p50}ms)</span>
+                  </p>
+                </div>
               </div>
             </Card>
 
             {/* Cost */}
-            <Card className="p-6 bg-zinc-800 border-zinc-700">
-              <div className="space-y-2">
-                <p className="text-sm text-zinc-400">Cost / 1k req</p>
-                <div className="flex items-baseline gap-2">
-                  <p className="text-3xl font-bold">${metrics.trained.cost}</p>
+            <Card className="p-8 bg-gradient-to-br from-zinc-800 to-zinc-900 border-2 border-zinc-700 hover:border-[#00A99D] transition-all shadow-lg">
+              <div className="space-y-3">
+                <p className="text-sm font-semibold text-zinc-400 uppercase tracking-wider">Cost / 1k req</p>
+                <div className="flex items-baseline gap-3">
+                  <p className="text-5xl font-black text-white">${metrics.trained.cost}</p>
                   {(() => {
                     const delta = metrics.trained.cost - metrics.gpt4o.cost;
                     const percentage = ((delta / metrics.gpt4o.cost) * 100).toFixed(1);
                     const isImprovement = delta < 0; // Lower is better
                     return (
-                      <div className={`flex items-center text-sm ${isImprovement ? 'text-green-400' : 'text-red-400'}`}>
-                        {isImprovement ? <TrendingDown className="w-3 h-3" /> : <TrendingUp className="w-3 h-3" />}
+                      <div className={`flex items-center gap-1 text-lg font-bold ${isImprovement ? 'text-green-400' : 'text-red-400'}`}>
+                        {isImprovement ? <TrendingDown className="w-5 h-5" /> : <TrendingUp className="w-5 h-5" />}
                         {Math.abs(parseFloat(percentage))}%
                       </div>
                     );
                   })()}
                 </div>
-                <p className="text-xs text-zinc-500">vs GPT-4o: ${metrics.gpt4o.cost}</p>
+                <div className="pt-2 border-t border-zinc-700">
+                  <p className="text-sm font-medium text-zinc-400">
+                    vs GPT-4o <span className="text-blue-400 font-bold">(${metrics.gpt4o.cost})</span>
+                  </p>
+                </div>
               </div>
+            </Card>
+          </div>
+
+          {/* Accuracy Over Time - Featured Graph */}
+          <div>
+            <h2 className="text-xl font-semibold mb-4">Intent Accuracy Training Progress</h2>
+            <Card className="p-6 bg-zinc-800 border-zinc-700">
+              <ResponsiveContainer width="100%" height={320}>
+                <LineChart data={TRAINING_CURVES} margin={{ top: 5, right: 30, left: 0, bottom: 20 }}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="#3f3f46" />
+                  <XAxis
+                    dataKey="training_step"
+                    stroke="#a1a1aa"
+                    label={{ value: 'Training Steps', position: 'insideBottom', offset: -10, fill: '#a1a1aa' }}
+                  />
+                  <YAxis stroke="#a1a1aa" domain={[70, 100]} label={{ value: 'Accuracy (%)', angle: -90, position: 'insideLeft' }} />
+                  <Tooltip
+                    contentStyle={{ backgroundColor: '#27272a', border: '1px solid #3f3f46' }}
+                    labelStyle={{ color: '#fff' }}
+                  />
+                  <Line type="monotone" dataKey="accuracy" stroke="#10b981" strokeWidth={3} dot={false} />
+                </LineChart>
+              </ResponsiveContainer>
             </Card>
           </div>
 
@@ -363,29 +398,6 @@ export function DashboardPage() {
                   </LineChart>
                 </ResponsiveContainer>
               </Card>
-            </div>
-
-            {/* Second row: Accuracy */}
-            <div className="grid grid-cols-2 gap-6">
-              {/* Accuracy */}
-              <Card className="p-6 bg-zinc-800 border-zinc-700">
-                <h3 className="text-lg font-semibold mb-4">Accuracy Over Time</h3>
-                <ResponsiveContainer width="100%" height={250}>
-                  <LineChart data={TRAINING_CURVES}>
-                    <CartesianGrid strokeDasharray="3 3" stroke="#3f3f46" />
-                    <XAxis dataKey="training_step" stroke="#a1a1aa" />
-                    <YAxis stroke="#a1a1aa" domain={[70, 100]} label={{ value: 'Accuracy (%)', angle: -90, position: 'insideLeft' }} />
-                    <Tooltip
-                      contentStyle={{ backgroundColor: '#27272a', border: '1px solid #3f3f46' }}
-                      labelStyle={{ color: '#fff' }}
-                    />
-                    <Line type="monotone" dataKey="accuracy" stroke="#3b82f6" strokeWidth={2} dot={false} />
-                  </LineChart>
-                </ResponsiveContainer>
-              </Card>
-
-              {/* Empty placeholder for layout */}
-              <div />
             </div>
 
             {/* Third row: KL Divergence and Reward Progression */}

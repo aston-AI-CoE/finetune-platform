@@ -484,7 +484,7 @@ const useStore = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_module
         // Metrics
         metrics: {
             gpt4o: {
-                intent: 95,
+                intent: 90,
                 policy: 95,
                 system: 93,
                 p50: 350,
@@ -7897,32 +7897,36 @@ const MODELS = [
 // 25 23 27  for judges
 const TEMPLATE_GUIDELINES = [
     {
-        id: 'general_guidelines',
-        text: `Always start your response with <analysis> and <intent> tags. Greet politely with "Thank you for reaching out" or similar. If the customer appears dissatisfied, apologize for the inconvenience. Re-state any numeric data in words. Maintain a polite and gender-neutral tone throughout.`
+        id: 'analysis_output',
+        text: 'Always structure your response with <analysis> tags containing your reasoning process, followed by <intent> tags with the classified intent(s).'
     },
     {
-        id: 'cancel_order',
-        text: 'If intent = cancel_order: Ask the customer for the reason they want to cancel. Inform them there is a $4.99 cancellation fee if the order is less than 2 days from delivery. If delivery is 2 or more days away, cancellation is free.'
+        id: 'intent_classification',
+        text: 'Classify customer utterances into one of 356 predefined intent categories. Reference the comprehensive intent classification table and hierarchical structure (depth1~4) for accurate categorization.'
     },
     {
-        id: 'change_order',
-        text: 'If intent = change_order: Changes can only be made to the same brand. No changes are allowed if delivery is less than 2 days away. If within the allowed timeframe, ask what specifically they would like to change.'
+        id: 'intent_vs_request',
+        text: 'Distinguish between customer intent (root cause of inquiry) and request (desired action). Always prioritize identifying the underlying intent over the surface-level request.'
     },
     {
-        id: 'change_shipping_address',
-        text: 'If intent = change_shipping_address: Address changes can only be made for new orders that haven\'t shipped yet. If order has already shipped, inform customer the address cannot be changed.'
+        id: 'multi_intent_priority',
+        text: 'When multiple intents are detected in a single utterance, apply priority hierarchy: P1 (primary intent) > P2 (secondary intent). Focus on the root cause over related topics.'
     },
     {
-        id: 'check_cancellation_fee',
-        text: 'If intent = check_cancellation_fee: If delivery is 2 or more days away, cancellation is FREE. If delivery is less than 2 days away, $4.99 cancellation fee applies.'
+        id: 'keyword_extraction',
+        text: 'Detect and extract critical keywords including Intent_tags. Pay attention to domain-specific terminology: Coupang Eats, Coupang Play, WOW Membership, Rocket Mobile.'
     },
     {
-        id: 'track_order',
-        text: 'If intent = track_order: Inform the customer they can see the delivery date in their personal area. Let them know they can view detailed order whereabouts (tracking updates) in their personal area. Ask for order ID if they need specific assistance.'
+        id: 'filter_irrelevant',
+        text: 'Filter out irrelevant utterances including simple acknowledgments (OK, thanks), feedback without actionable intent, and reactions. These should not be classified as having intent.'
     },
     {
-        id: 'track_refund',
-        text: 'If intent = track_refund: Ask for the refund case ID (customer should have received it via email). If they cannot find the email, offer to help locate it using order information.'
+        id: 'accuracy_target',
+        text: 'Maintain 95%+ accuracy for intent detection and 90%+ for request classification. Flag ambiguous cases and provide confidence scores when multiple intents are possible.'
+    },
+    {
+        id: 'context_awareness',
+        text: 'Consider complete utterance context including temporal sequencing. For physical defects/damage, prioritize vendor-responsibility. Never rely solely on keyword matching without understanding full context.'
     }
 ];
 const generateTrainingLogs = (modelName)=>[
@@ -7996,6 +8000,9 @@ function FinetunePage() {
         'GRPO'
     ]);
     const [rlefRegex, setRlefRegex] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])('<intent>(.*?)</intent>');
+    const [outputFormat, setOutputFormat] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])('regex');
+    const [reasoningEffort, setReasoningEffort] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])('medium');
+    const [latencySLA, setLatencySLA] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])('500');
     const [training, setTraining] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])(false);
     const [isMounted, setIsMounted] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])(false);
     (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useEffect"])({
@@ -8083,7 +8090,7 @@ function FinetunePage() {
                         children: "Training Wizard"
                     }, void 0, false, {
                         fileName: "[project]/components/pages/FinetunePage.tsx",
-                        lineNumber: 212,
+                        lineNumber: 219,
                         columnNumber: 9
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -8118,12 +8125,12 @@ function FinetunePage() {
                                             className: "w-4 h-4"
                                         }, void 0, false, {
                                             fileName: "[project]/components/pages/FinetunePage.tsx",
-                                            lineNumber: 243,
+                                            lineNumber: 250,
                                             columnNumber: 34
                                         }, this) : step.num
                                     }, void 0, false, {
                                         fileName: "[project]/components/pages/FinetunePage.tsx",
-                                        lineNumber: 235,
+                                        lineNumber: 242,
                                         columnNumber: 17
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -8131,25 +8138,25 @@ function FinetunePage() {
                                         children: step.title
                                     }, void 0, false, {
                                         fileName: "[project]/components/pages/FinetunePage.tsx",
-                                        lineNumber: 245,
+                                        lineNumber: 252,
                                         columnNumber: 17
                                     }, this)
                                 ]
                             }, step.num, true, {
                                 fileName: "[project]/components/pages/FinetunePage.tsx",
-                                lineNumber: 226,
+                                lineNumber: 233,
                                 columnNumber: 15
                             }, this);
                         })
                     }, void 0, false, {
                         fileName: "[project]/components/pages/FinetunePage.tsx",
-                        lineNumber: 215,
+                        lineNumber: 222,
                         columnNumber: 9
                     }, this)
                 ]
             }, void 0, true, {
                 fileName: "[project]/components/pages/FinetunePage.tsx",
-                lineNumber: 211,
+                lineNumber: 218,
                 columnNumber: 7
             }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -8169,7 +8176,7 @@ function FinetunePage() {
                                                     children: "Training Guidelines"
                                                 }, void 0, false, {
                                                     fileName: "[project]/components/pages/FinetunePage.tsx",
-                                                    lineNumber: 269,
+                                                    lineNumber: 276,
                                                     columnNumber: 19
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -8177,13 +8184,13 @@ function FinetunePage() {
                                                     children: "Define guidelines that the AI judge will use to evaluate model responses"
                                                 }, void 0, false, {
                                                     fileName: "[project]/components/pages/FinetunePage.tsx",
-                                                    lineNumber: 270,
+                                                    lineNumber: 277,
                                                     columnNumber: 19
                                                 }, this)
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/components/pages/FinetunePage.tsx",
-                                            lineNumber: 268,
+                                            lineNumber: 275,
                                             columnNumber: 17
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -8193,10 +8200,10 @@ function FinetunePage() {
                                                     onClick: loadTemplate,
                                                     variant: "outline",
                                                     size: "sm",
-                                                    children: "Customer Support"
+                                                    children: "Intent Classification"
                                                 }, void 0, false, {
                                                     fileName: "[project]/components/pages/FinetunePage.tsx",
-                                                    lineNumber: 276,
+                                                    lineNumber: 283,
                                                     columnNumber: 19
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$button$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Button"], {
@@ -8206,7 +8213,7 @@ function FinetunePage() {
                                                     children: "Follow document context"
                                                 }, void 0, false, {
                                                     fileName: "[project]/components/pages/FinetunePage.tsx",
-                                                    lineNumber: 279,
+                                                    lineNumber: 286,
                                                     columnNumber: 19
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$button$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Button"], {
@@ -8216,13 +8223,13 @@ function FinetunePage() {
                                                     children: "Improve Text2SQL"
                                                 }, void 0, false, {
                                                     fileName: "[project]/components/pages/FinetunePage.tsx",
-                                                    lineNumber: 282,
+                                                    lineNumber: 289,
                                                     columnNumber: 19
                                                 }, this)
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/components/pages/FinetunePage.tsx",
-                                            lineNumber: 275,
+                                            lineNumber: 282,
                                             columnNumber: 17
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Card"], {
@@ -8230,6 +8237,14 @@ function FinetunePage() {
                                             children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                                                 className: "space-y-4",
                                                 children: [
+                                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                                        className: "text-sm font-medium text-zinc-300 mb-2",
+                                                        children: "Evaluation Guidelines"
+                                                    }, void 0, false, {
+                                                        fileName: "[project]/components/pages/FinetunePage.tsx",
+                                                        lineNumber: 296,
+                                                        columnNumber: 21
+                                                    }, this),
                                                     guidelines.map((guideline)=>/*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                                                             className: "flex items-start gap-3 p-3 bg-zinc-900 rounded-lg",
                                                             children: [
@@ -8241,7 +8256,7 @@ function FinetunePage() {
                                                                             children: guideline.id
                                                                         }, void 0, false, {
                                                                             fileName: "[project]/components/pages/FinetunePage.tsx",
-                                                                            lineNumber: 295,
+                                                                            lineNumber: 303,
                                                                             columnNumber: 27
                                                                         }, this),
                                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -8249,13 +8264,13 @@ function FinetunePage() {
                                                                             children: guideline.text
                                                                         }, void 0, false, {
                                                                             fileName: "[project]/components/pages/FinetunePage.tsx",
-                                                                            lineNumber: 296,
+                                                                            lineNumber: 304,
                                                                             columnNumber: 27
                                                                         }, this)
                                                                     ]
                                                                 }, void 0, true, {
                                                                     fileName: "[project]/components/pages/FinetunePage.tsx",
-                                                                    lineNumber: 294,
+                                                                    lineNumber: 302,
                                                                     columnNumber: 25
                                                                 }, this),
                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
@@ -8265,18 +8280,18 @@ function FinetunePage() {
                                                                         className: "w-4 h-4"
                                                                     }, void 0, false, {
                                                                         fileName: "[project]/components/pages/FinetunePage.tsx",
-                                                                        lineNumber: 302,
+                                                                        lineNumber: 310,
                                                                         columnNumber: 27
                                                                     }, this)
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/components/pages/FinetunePage.tsx",
-                                                                    lineNumber: 298,
+                                                                    lineNumber: 306,
                                                                     columnNumber: 25
                                                                 }, this)
                                                             ]
                                                         }, guideline.id, true, {
                                                             fileName: "[project]/components/pages/FinetunePage.tsx",
-                                                            lineNumber: 290,
+                                                            lineNumber: 298,
                                                             columnNumber: 23
                                                         }, this)),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -8290,7 +8305,7 @@ function FinetunePage() {
                                                                 className: "flex-1 bg-zinc-900 border-zinc-700"
                                                             }, void 0, false, {
                                                                 fileName: "[project]/components/pages/FinetunePage.tsx",
-                                                                lineNumber: 308,
+                                                                lineNumber: 316,
                                                                 columnNumber: 23
                                                             }, this),
                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$button$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Button"], {
@@ -8300,29 +8315,322 @@ function FinetunePage() {
                                                                     className: "w-4 h-4"
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/components/pages/FinetunePage.tsx",
-                                                                    lineNumber: 316,
+                                                                    lineNumber: 324,
                                                                     columnNumber: 25
                                                                 }, this)
                                                             }, void 0, false, {
                                                                 fileName: "[project]/components/pages/FinetunePage.tsx",
-                                                                lineNumber: 315,
+                                                                lineNumber: 323,
                                                                 columnNumber: 23
                                                             }, this)
                                                         ]
                                                     }, void 0, true, {
                                                         fileName: "[project]/components/pages/FinetunePage.tsx",
-                                                        lineNumber: 307,
+                                                        lineNumber: 315,
                                                         columnNumber: 21
                                                     }, this)
                                                 ]
                                             }, void 0, true, {
                                                 fileName: "[project]/components/pages/FinetunePage.tsx",
-                                                lineNumber: 288,
+                                                lineNumber: 295,
                                                 columnNumber: 19
                                             }, this)
                                         }, void 0, false, {
                                             fileName: "[project]/components/pages/FinetunePage.tsx",
-                                            lineNumber: 287,
+                                            lineNumber: 294,
+                                            columnNumber: 17
+                                        }, this),
+                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Card"], {
+                                            className: "p-6 bg-zinc-800 border-zinc-700 space-y-6",
+                                            children: [
+                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                                    children: [
+                                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("label", {
+                                                            className: "text-sm font-medium mb-3 block",
+                                                            children: "Expected Output Format Checker"
+                                                        }, void 0, false, {
+                                                            fileName: "[project]/components/pages/FinetunePage.tsx",
+                                                            lineNumber: 332,
+                                                            columnNumber: 21
+                                                        }, this),
+                                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                                            className: "grid grid-cols-2 gap-3",
+                                                            children: [
+                                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
+                                                                    onClick: ()=>setOutputFormat('regex'),
+                                                                    className: (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$utils$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["cn"])('p-4 rounded-lg border-2 transition-all text-left', outputFormat === 'regex' ? 'border-[#00A99D] bg-[#00A99D]/10' : 'border-zinc-700 bg-zinc-900 hover:border-zinc-600'),
+                                                                    children: [
+                                                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                                                            className: "flex items-center justify-between mb-2",
+                                                                            children: [
+                                                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
+                                                                                    className: "font-medium",
+                                                                                    children: "Regex Pattern"
+                                                                                }, void 0, false, {
+                                                                                    fileName: "[project]/components/pages/FinetunePage.tsx",
+                                                                                    lineNumber: 344,
+                                                                                    columnNumber: 27
+                                                                                }, this),
+                                                                                outputFormat === 'regex' && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$check$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__Check$3e$__["Check"], {
+                                                                                    className: "w-4 h-4 text-[#00A99D]"
+                                                                                }, void 0, false, {
+                                                                                    fileName: "[project]/components/pages/FinetunePage.tsx",
+                                                                                    lineNumber: 346,
+                                                                                    columnNumber: 29
+                                                                                }, this)
+                                                                            ]
+                                                                        }, void 0, true, {
+                                                                            fileName: "[project]/components/pages/FinetunePage.tsx",
+                                                                            lineNumber: 343,
+                                                                            columnNumber: 25
+                                                                        }, this),
+                                                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
+                                                                            className: "text-xs text-zinc-400",
+                                                                            children: "Extract intent using regex pattern matching"
+                                                                        }, void 0, false, {
+                                                                            fileName: "[project]/components/pages/FinetunePage.tsx",
+                                                                            lineNumber: 349,
+                                                                            columnNumber: 25
+                                                                        }, this)
+                                                                    ]
+                                                                }, void 0, true, {
+                                                                    fileName: "[project]/components/pages/FinetunePage.tsx",
+                                                                    lineNumber: 334,
+                                                                    columnNumber: 23
+                                                                }, this),
+                                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
+                                                                    onClick: ()=>setOutputFormat('json'),
+                                                                    className: (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$utils$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["cn"])('p-4 rounded-lg border-2 transition-all text-left', outputFormat === 'json' ? 'border-[#00A99D] bg-[#00A99D]/10' : 'border-zinc-700 bg-zinc-900 hover:border-zinc-600'),
+                                                                    children: [
+                                                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                                                            className: "flex items-center justify-between mb-2",
+                                                                            children: [
+                                                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
+                                                                                    className: "font-medium",
+                                                                                    children: "JSON Schema"
+                                                                                }, void 0, false, {
+                                                                                    fileName: "[project]/components/pages/FinetunePage.tsx",
+                                                                                    lineNumber: 361,
+                                                                                    columnNumber: 27
+                                                                                }, this),
+                                                                                outputFormat === 'json' && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$check$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__Check$3e$__["Check"], {
+                                                                                    className: "w-4 h-4 text-[#00A99D]"
+                                                                                }, void 0, false, {
+                                                                                    fileName: "[project]/components/pages/FinetunePage.tsx",
+                                                                                    lineNumber: 363,
+                                                                                    columnNumber: 29
+                                                                                }, this)
+                                                                            ]
+                                                                        }, void 0, true, {
+                                                                            fileName: "[project]/components/pages/FinetunePage.tsx",
+                                                                            lineNumber: 360,
+                                                                            columnNumber: 25
+                                                                        }, this),
+                                                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
+                                                                            className: "text-xs text-zinc-400",
+                                                                            children: "Validate structured JSON output format"
+                                                                        }, void 0, false, {
+                                                                            fileName: "[project]/components/pages/FinetunePage.tsx",
+                                                                            lineNumber: 366,
+                                                                            columnNumber: 25
+                                                                        }, this)
+                                                                    ]
+                                                                }, void 0, true, {
+                                                                    fileName: "[project]/components/pages/FinetunePage.tsx",
+                                                                    lineNumber: 351,
+                                                                    columnNumber: 23
+                                                                }, this)
+                                                            ]
+                                                        }, void 0, true, {
+                                                            fileName: "[project]/components/pages/FinetunePage.tsx",
+                                                            lineNumber: 333,
+                                                            columnNumber: 21
+                                                        }, this),
+                                                        outputFormat === 'regex' && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                                            className: "mt-4",
+                                                            children: [
+                                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("label", {
+                                                                    className: "text-sm text-zinc-400 mb-2 block",
+                                                                    children: "Regex Pattern"
+                                                                }, void 0, false, {
+                                                                    fileName: "[project]/components/pages/FinetunePage.tsx",
+                                                                    lineNumber: 372,
+                                                                    columnNumber: 25
+                                                                }, this),
+                                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$input$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Input"], {
+                                                                    value: rlefRegex,
+                                                                    onChange: (e)=>setRlefRegex(e.target.value),
+                                                                    placeholder: "e.g., <intent>(.*?)</intent>",
+                                                                    className: "font-mono text-sm bg-zinc-900 border-zinc-700"
+                                                                }, void 0, false, {
+                                                                    fileName: "[project]/components/pages/FinetunePage.tsx",
+                                                                    lineNumber: 373,
+                                                                    columnNumber: 25
+                                                                }, this)
+                                                            ]
+                                                        }, void 0, true, {
+                                                            fileName: "[project]/components/pages/FinetunePage.tsx",
+                                                            lineNumber: 371,
+                                                            columnNumber: 23
+                                                        }, this),
+                                                        outputFormat === 'json' && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                                            className: "mt-4",
+                                                            children: [
+                                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("label", {
+                                                                    className: "text-sm text-zinc-400 mb-2 block",
+                                                                    children: "JSON Schema Preview"
+                                                                }, void 0, false, {
+                                                                    fileName: "[project]/components/pages/FinetunePage.tsx",
+                                                                    lineNumber: 384,
+                                                                    columnNumber: 25
+                                                                }, this),
+                                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                                                    className: "p-3 bg-zinc-950 rounded-lg border border-zinc-700 font-mono text-xs text-zinc-400",
+                                                                    children: `{\n  "intent": "string",\n  "confidence": "number",\n  "keywords": ["string"]\n}`
+                                                                }, void 0, false, {
+                                                                    fileName: "[project]/components/pages/FinetunePage.tsx",
+                                                                    lineNumber: 385,
+                                                                    columnNumber: 25
+                                                                }, this)
+                                                            ]
+                                                        }, void 0, true, {
+                                                            fileName: "[project]/components/pages/FinetunePage.tsx",
+                                                            lineNumber: 383,
+                                                            columnNumber: 23
+                                                        }, this)
+                                                    ]
+                                                }, void 0, true, {
+                                                    fileName: "[project]/components/pages/FinetunePage.tsx",
+                                                    lineNumber: 331,
+                                                    columnNumber: 19
+                                                }, this),
+                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                                    children: [
+                                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("label", {
+                                                            className: "text-sm font-medium mb-3 block",
+                                                            children: "Reasoning Effort"
+                                                        }, void 0, false, {
+                                                            fileName: "[project]/components/pages/FinetunePage.tsx",
+                                                            lineNumber: 393,
+                                                            columnNumber: 21
+                                                        }, this),
+                                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                                            className: "grid grid-cols-3 gap-3",
+                                                            children: [
+                                                                'low',
+                                                                'medium',
+                                                                'high'
+                                                            ].map((level)=>/*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
+                                                                    onClick: ()=>setReasoningEffort(level),
+                                                                    className: (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$utils$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["cn"])('p-4 rounded-lg border-2 transition-all text-center', reasoningEffort === level ? 'border-[#00A99D] bg-[#00A99D]/10' : 'border-zinc-700 bg-zinc-900 hover:border-zinc-600'),
+                                                                    children: [
+                                                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                                                            className: "flex items-center justify-center mb-2",
+                                                                            children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
+                                                                                className: "font-medium capitalize",
+                                                                                children: level
+                                                                            }, void 0, false, {
+                                                                                fileName: "[project]/components/pages/FinetunePage.tsx",
+                                                                                lineNumber: 407,
+                                                                                columnNumber: 29
+                                                                            }, this)
+                                                                        }, void 0, false, {
+                                                                            fileName: "[project]/components/pages/FinetunePage.tsx",
+                                                                            lineNumber: 406,
+                                                                            columnNumber: 27
+                                                                        }, this),
+                                                                        reasoningEffort === level && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$check$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__Check$3e$__["Check"], {
+                                                                            className: "w-4 h-4 text-[#00A99D] mx-auto"
+                                                                        }, void 0, false, {
+                                                                            fileName: "[project]/components/pages/FinetunePage.tsx",
+                                                                            lineNumber: 410,
+                                                                            columnNumber: 29
+                                                                        }, this)
+                                                                    ]
+                                                                }, level, true, {
+                                                                    fileName: "[project]/components/pages/FinetunePage.tsx",
+                                                                    lineNumber: 396,
+                                                                    columnNumber: 25
+                                                                }, this))
+                                                        }, void 0, false, {
+                                                            fileName: "[project]/components/pages/FinetunePage.tsx",
+                                                            lineNumber: 394,
+                                                            columnNumber: 21
+                                                        }, this),
+                                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
+                                                            className: "text-xs text-zinc-400 mt-3",
+                                                            children: [
+                                                                reasoningEffort === 'low' && 'Quick classification with minimal chain-of-thought reasoning',
+                                                                reasoningEffort === 'medium' && 'Balanced approach with moderate reasoning depth',
+                                                                reasoningEffort === 'high' && 'Deep analysis with extensive chain-of-thought reasoning'
+                                                            ]
+                                                        }, void 0, true, {
+                                                            fileName: "[project]/components/pages/FinetunePage.tsx",
+                                                            lineNumber: 415,
+                                                            columnNumber: 21
+                                                        }, this)
+                                                    ]
+                                                }, void 0, true, {
+                                                    fileName: "[project]/components/pages/FinetunePage.tsx",
+                                                    lineNumber: 392,
+                                                    columnNumber: 19
+                                                }, this),
+                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                                    children: [
+                                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("label", {
+                                                            className: "text-sm font-medium mb-3 block",
+                                                            children: "Reasoning Latency SLA"
+                                                        }, void 0, false, {
+                                                            fileName: "[project]/components/pages/FinetunePage.tsx",
+                                                            lineNumber: 423,
+                                                            columnNumber: 21
+                                                        }, this),
+                                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                                            className: "flex items-center gap-4",
+                                                            children: [
+                                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$input$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Input"], {
+                                                                    type: "number",
+                                                                    value: latencySLA,
+                                                                    onChange: (e)=>setLatencySLA(e.target.value),
+                                                                    placeholder: "500",
+                                                                    className: "flex-1 bg-zinc-900 border-zinc-700"
+                                                                }, void 0, false, {
+                                                                    fileName: "[project]/components/pages/FinetunePage.tsx",
+                                                                    lineNumber: 425,
+                                                                    columnNumber: 23
+                                                                }, this),
+                                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
+                                                                    className: "text-sm text-zinc-400",
+                                                                    children: "milliseconds"
+                                                                }, void 0, false, {
+                                                                    fileName: "[project]/components/pages/FinetunePage.tsx",
+                                                                    lineNumber: 432,
+                                                                    columnNumber: 23
+                                                                }, this)
+                                                            ]
+                                                        }, void 0, true, {
+                                                            fileName: "[project]/components/pages/FinetunePage.tsx",
+                                                            lineNumber: 424,
+                                                            columnNumber: 21
+                                                        }, this),
+                                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
+                                                            className: "text-xs text-zinc-400 mt-2",
+                                                            children: "Target latency for inference. Higher reasoning effort may require higher latency SLA."
+                                                        }, void 0, false, {
+                                                            fileName: "[project]/components/pages/FinetunePage.tsx",
+                                                            lineNumber: 434,
+                                                            columnNumber: 21
+                                                        }, this)
+                                                    ]
+                                                }, void 0, true, {
+                                                    fileName: "[project]/components/pages/FinetunePage.tsx",
+                                                    lineNumber: 422,
+                                                    columnNumber: 19
+                                                }, this)
+                                            ]
+                                        }, void 0, true, {
+                                            fileName: "[project]/components/pages/FinetunePage.tsx",
+                                            lineNumber: 330,
                                             columnNumber: 17
                                         }, this)
                                     ]
@@ -8336,7 +8644,7 @@ function FinetunePage() {
                                                     children: "Training Data"
                                                 }, void 0, false, {
                                                     fileName: "[project]/components/pages/FinetunePage.tsx",
-                                                    lineNumber: 328,
+                                                    lineNumber: 446,
                                                     columnNumber: 19
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -8344,13 +8652,13 @@ function FinetunePage() {
                                                     children: "Select dataset and AI judge for feedback"
                                                 }, void 0, false, {
                                                     fileName: "[project]/components/pages/FinetunePage.tsx",
-                                                    lineNumber: 329,
+                                                    lineNumber: 447,
                                                     columnNumber: 19
                                                 }, this)
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/components/pages/FinetunePage.tsx",
-                                            lineNumber: 327,
+                                            lineNumber: 445,
                                             columnNumber: 17
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Card"], {
@@ -8363,7 +8671,7 @@ function FinetunePage() {
                                                             children: "Data Source"
                                                         }, void 0, false, {
                                                             fileName: "[project]/components/pages/FinetunePage.tsx",
-                                                            lineNumber: 334,
+                                                            lineNumber: 452,
                                                             columnNumber: 21
                                                         }, this),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$radio$2d$group$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["RadioGroup"], {
@@ -8379,7 +8687,7 @@ function FinetunePage() {
                                                                             disabled: true
                                                                         }, void 0, false, {
                                                                             fileName: "[project]/components/pages/FinetunePage.tsx",
-                                                                            lineNumber: 337,
+                                                                            lineNumber: 455,
                                                                             columnNumber: 25
                                                                         }, this),
                                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("label", {
@@ -8391,7 +8699,7 @@ function FinetunePage() {
                                                                                     children: "Train on existing prompts"
                                                                                 }, void 0, false, {
                                                                                     fileName: "[project]/components/pages/FinetunePage.tsx",
-                                                                                    lineNumber: 339,
+                                                                                    lineNumber: 457,
                                                                                     columnNumber: 27
                                                                                 }, this),
                                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -8399,19 +8707,19 @@ function FinetunePage() {
                                                                                     children: "Use production logs (coming soon)"
                                                                                 }, void 0, false, {
                                                                                     fileName: "[project]/components/pages/FinetunePage.tsx",
-                                                                                    lineNumber: 340,
+                                                                                    lineNumber: 458,
                                                                                     columnNumber: 27
                                                                                 }, this)
                                                                             ]
                                                                         }, void 0, true, {
                                                                             fileName: "[project]/components/pages/FinetunePage.tsx",
-                                                                            lineNumber: 338,
+                                                                            lineNumber: 456,
                                                                             columnNumber: 25
                                                                         }, this)
                                                                     ]
                                                                 }, void 0, true, {
                                                                     fileName: "[project]/components/pages/FinetunePage.tsx",
-                                                                    lineNumber: 336,
+                                                                    lineNumber: 454,
                                                                     columnNumber: 23
                                                                 }, this),
                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -8422,7 +8730,7 @@ function FinetunePage() {
                                                                             id: "dataset"
                                                                         }, void 0, false, {
                                                                             fileName: "[project]/components/pages/FinetunePage.tsx",
-                                                                            lineNumber: 344,
+                                                                            lineNumber: 462,
                                                                             columnNumber: 25
                                                                         }, this),
                                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("label", {
@@ -8434,7 +8742,7 @@ function FinetunePage() {
                                                                                     children: "Use dataset"
                                                                                 }, void 0, false, {
                                                                                     fileName: "[project]/components/pages/FinetunePage.tsx",
-                                                                                    lineNumber: 346,
+                                                                                    lineNumber: 464,
                                                                                     columnNumber: 27
                                                                                 }, this),
                                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -8442,31 +8750,31 @@ function FinetunePage() {
                                                                                     children: "Upload or generate synthetic data"
                                                                                 }, void 0, false, {
                                                                                     fileName: "[project]/components/pages/FinetunePage.tsx",
-                                                                                    lineNumber: 347,
+                                                                                    lineNumber: 465,
                                                                                     columnNumber: 27
                                                                                 }, this)
                                                                             ]
                                                                         }, void 0, true, {
                                                                             fileName: "[project]/components/pages/FinetunePage.tsx",
-                                                                            lineNumber: 345,
+                                                                            lineNumber: 463,
                                                                             columnNumber: 25
                                                                         }, this)
                                                                     ]
                                                                 }, void 0, true, {
                                                                     fileName: "[project]/components/pages/FinetunePage.tsx",
-                                                                    lineNumber: 343,
+                                                                    lineNumber: 461,
                                                                     columnNumber: 23
                                                                 }, this)
                                                             ]
                                                         }, void 0, true, {
                                                             fileName: "[project]/components/pages/FinetunePage.tsx",
-                                                            lineNumber: 335,
+                                                            lineNumber: 453,
                                                             columnNumber: 21
                                                         }, this)
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/components/pages/FinetunePage.tsx",
-                                                    lineNumber: 333,
+                                                    lineNumber: 451,
                                                     columnNumber: 19
                                                 }, this),
                                                 isMounted ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -8476,7 +8784,7 @@ function FinetunePage() {
                                                             children: "Select Dataset"
                                                         }, void 0, false, {
                                                             fileName: "[project]/components/pages/FinetunePage.tsx",
-                                                            lineNumber: 355,
+                                                            lineNumber: 473,
                                                             columnNumber: 23
                                                         }, this),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$select$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Select"], {
@@ -8487,12 +8795,12 @@ function FinetunePage() {
                                                                     className: "bg-zinc-900 border-zinc-700",
                                                                     children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$select$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["SelectValue"], {}, void 0, false, {
                                                                         fileName: "[project]/components/pages/FinetunePage.tsx",
-                                                                        lineNumber: 358,
+                                                                        lineNumber: 476,
                                                                         columnNumber: 27
                                                                     }, this)
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/components/pages/FinetunePage.tsx",
-                                                                    lineNumber: 357,
+                                                                    lineNumber: 475,
                                                                     columnNumber: 25
                                                                 }, this),
                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$select$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["SelectContent"], {
@@ -8502,7 +8810,7 @@ function FinetunePage() {
                                                                             children: "customer-support-training (20000 rows)"
                                                                         }, void 0, false, {
                                                                             fileName: "[project]/components/pages/FinetunePage.tsx",
-                                                                            lineNumber: 361,
+                                                                            lineNumber: 479,
                                                                             columnNumber: 27
                                                                         }, this),
                                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$select$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["SelectItem"], {
@@ -8510,25 +8818,25 @@ function FinetunePage() {
                                                                             children: "customer-support-validation (5000 rows)"
                                                                         }, void 0, false, {
                                                                             fileName: "[project]/components/pages/FinetunePage.tsx",
-                                                                            lineNumber: 364,
+                                                                            lineNumber: 482,
                                                                             columnNumber: 27
                                                                         }, this)
                                                                     ]
                                                                 }, void 0, true, {
                                                                     fileName: "[project]/components/pages/FinetunePage.tsx",
-                                                                    lineNumber: 360,
+                                                                    lineNumber: 478,
                                                                     columnNumber: 25
                                                                 }, this)
                                                             ]
                                                         }, void 0, true, {
                                                             fileName: "[project]/components/pages/FinetunePage.tsx",
-                                                            lineNumber: 356,
+                                                            lineNumber: 474,
                                                             columnNumber: 23
                                                         }, this)
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/components/pages/FinetunePage.tsx",
-                                                    lineNumber: 354,
+                                                    lineNumber: 472,
                                                     columnNumber: 21
                                                 }, this) : /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                                                     children: [
@@ -8537,7 +8845,7 @@ function FinetunePage() {
                                                             children: "Select Dataset"
                                                         }, void 0, false, {
                                                             fileName: "[project]/components/pages/FinetunePage.tsx",
-                                                            lineNumber: 372,
+                                                            lineNumber: 490,
                                                             columnNumber: 23
                                                         }, this),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -8545,19 +8853,19 @@ function FinetunePage() {
                                                             children: selectedDataset || 'Select a dataset'
                                                         }, void 0, false, {
                                                             fileName: "[project]/components/pages/FinetunePage.tsx",
-                                                            lineNumber: 373,
+                                                            lineNumber: 491,
                                                             columnNumber: 23
                                                         }, this)
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/components/pages/FinetunePage.tsx",
-                                                    lineNumber: 371,
+                                                    lineNumber: 489,
                                                     columnNumber: 21
                                                 }, this)
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/components/pages/FinetunePage.tsx",
-                                            lineNumber: 332,
+                                            lineNumber: 450,
                                             columnNumber: 17
                                         }, this)
                                     ]
@@ -8571,7 +8879,7 @@ function FinetunePage() {
                                                     children: "Training Parameters & Model"
                                                 }, void 0, false, {
                                                     fileName: "[project]/components/pages/FinetunePage.tsx",
-                                                    lineNumber: 387,
+                                                    lineNumber: 505,
                                                     columnNumber: 19
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -8579,13 +8887,13 @@ function FinetunePage() {
                                                     children: "Configure model and training strategy"
                                                 }, void 0, false, {
                                                     fileName: "[project]/components/pages/FinetunePage.tsx",
-                                                    lineNumber: 388,
+                                                    lineNumber: 506,
                                                     columnNumber: 19
                                                 }, this)
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/components/pages/FinetunePage.tsx",
-                                            lineNumber: 386,
+                                            lineNumber: 504,
                                             columnNumber: 17
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Card"], {
@@ -8598,7 +8906,7 @@ function FinetunePage() {
                                                             children: "Select Model"
                                                         }, void 0, false, {
                                                             fileName: "[project]/components/pages/FinetunePage.tsx",
-                                                            lineNumber: 393,
+                                                            lineNumber: 511,
                                                             columnNumber: 21
                                                         }, this),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -8616,7 +8924,7 @@ function FinetunePage() {
                                                                                         className: (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$utils$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["cn"])('w-2 h-2 rounded-full flex-shrink-0', model.color)
                                                                                     }, void 0, false, {
                                                                                         fileName: "[project]/components/pages/FinetunePage.tsx",
-                                                                                        lineNumber: 408,
+                                                                                        lineNumber: 526,
                                                                                         columnNumber: 31
                                                                                     }, this),
                                                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -8624,42 +8932,42 @@ function FinetunePage() {
                                                                                         children: model.name
                                                                                     }, void 0, false, {
                                                                                         fileName: "[project]/components/pages/FinetunePage.tsx",
-                                                                                        lineNumber: 409,
+                                                                                        lineNumber: 527,
                                                                                         columnNumber: 31
                                                                                     }, this)
                                                                                 ]
                                                                             }, void 0, true, {
                                                                                 fileName: "[project]/components/pages/FinetunePage.tsx",
-                                                                                lineNumber: 407,
+                                                                                lineNumber: 525,
                                                                                 columnNumber: 29
                                                                             }, this),
                                                                             selectedModel === model.name && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$check$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__Check$3e$__["Check"], {
                                                                                 className: "w-4 h-4 text-[#00A99D] flex-shrink-0"
                                                                             }, void 0, false, {
                                                                                 fileName: "[project]/components/pages/FinetunePage.tsx",
-                                                                                lineNumber: 412,
+                                                                                lineNumber: 530,
                                                                                 columnNumber: 31
                                                                             }, this)
                                                                         ]
                                                                     }, void 0, true, {
                                                                         fileName: "[project]/components/pages/FinetunePage.tsx",
-                                                                        lineNumber: 406,
+                                                                        lineNumber: 524,
                                                                         columnNumber: 27
                                                                     }, this)
                                                                 }, model.name, false, {
                                                                     fileName: "[project]/components/pages/FinetunePage.tsx",
-                                                                    lineNumber: 396,
+                                                                    lineNumber: 514,
                                                                     columnNumber: 25
                                                                 }, this))
                                                         }, void 0, false, {
                                                             fileName: "[project]/components/pages/FinetunePage.tsx",
-                                                            lineNumber: 394,
+                                                            lineNumber: 512,
                                                             columnNumber: 21
                                                         }, this)
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/components/pages/FinetunePage.tsx",
-                                                    lineNumber: 392,
+                                                    lineNumber: 510,
                                                     columnNumber: 19
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -8669,7 +8977,7 @@ function FinetunePage() {
                                                             children: "Training Strategy (select one or more)"
                                                         }, void 0, false, {
                                                             fileName: "[project]/components/pages/FinetunePage.tsx",
-                                                            lineNumber: 421,
+                                                            lineNumber: 539,
                                                             columnNumber: 21
                                                         }, this),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -8696,7 +9004,7 @@ function FinetunePage() {
                                                                             }
                                                                         }, void 0, false, {
                                                                             fileName: "[project]/components/pages/FinetunePage.tsx",
-                                                                            lineNumber: 425,
+                                                                            lineNumber: 543,
                                                                             columnNumber: 27
                                                                         }, this),
                                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("label", {
@@ -8709,30 +9017,30 @@ function FinetunePage() {
                                                                             ]
                                                                         }, void 0, true, {
                                                                             fileName: "[project]/components/pages/FinetunePage.tsx",
-                                                                            lineNumber: 436,
+                                                                            lineNumber: 554,
                                                                             columnNumber: 27
                                                                         }, this)
                                                                     ]
                                                                 }, s, true, {
                                                                     fileName: "[project]/components/pages/FinetunePage.tsx",
-                                                                    lineNumber: 424,
+                                                                    lineNumber: 542,
                                                                     columnNumber: 25
                                                                 }, this))
                                                         }, void 0, false, {
                                                             fileName: "[project]/components/pages/FinetunePage.tsx",
-                                                            lineNumber: 422,
+                                                            lineNumber: 540,
                                                             columnNumber: 21
                                                         }, this)
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/components/pages/FinetunePage.tsx",
-                                                    lineNumber: 420,
+                                                    lineNumber: 538,
                                                     columnNumber: 19
                                                 }, this)
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/components/pages/FinetunePage.tsx",
-                                            lineNumber: 391,
+                                            lineNumber: 509,
                                             columnNumber: 17
                                         }, this)
                                     ]
@@ -8746,7 +9054,7 @@ function FinetunePage() {
                                                     children: "Review & Start Training"
                                                 }, void 0, false, {
                                                     fileName: "[project]/components/pages/FinetunePage.tsx",
-                                                    lineNumber: 453,
+                                                    lineNumber: 571,
                                                     columnNumber: 19
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -8754,13 +9062,13 @@ function FinetunePage() {
                                                     children: "Verify configuration and start training"
                                                 }, void 0, false, {
                                                     fileName: "[project]/components/pages/FinetunePage.tsx",
-                                                    lineNumber: 454,
+                                                    lineNumber: 572,
                                                     columnNumber: 19
                                                 }, this)
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/components/pages/FinetunePage.tsx",
-                                            lineNumber: 452,
+                                            lineNumber: 570,
                                             columnNumber: 17
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Card"], {
@@ -8775,7 +9083,7 @@ function FinetunePage() {
                                                                 children: "Dataset"
                                                             }, void 0, false, {
                                                                 fileName: "[project]/components/pages/FinetunePage.tsx",
-                                                                lineNumber: 460,
+                                                                lineNumber: 578,
                                                                 columnNumber: 23
                                                             }, this),
                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -8783,13 +9091,13 @@ function FinetunePage() {
                                                                 children: selectedDataset
                                                             }, void 0, false, {
                                                                 fileName: "[project]/components/pages/FinetunePage.tsx",
-                                                                lineNumber: 461,
+                                                                lineNumber: 579,
                                                                 columnNumber: 23
                                                             }, this)
                                                         ]
                                                     }, void 0, true, {
                                                         fileName: "[project]/components/pages/FinetunePage.tsx",
-                                                        lineNumber: 459,
+                                                        lineNumber: 577,
                                                         columnNumber: 21
                                                     }, this),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -8799,7 +9107,7 @@ function FinetunePage() {
                                                                 children: "AI Judge"
                                                             }, void 0, false, {
                                                                 fileName: "[project]/components/pages/FinetunePage.tsx",
-                                                                lineNumber: 464,
+                                                                lineNumber: 582,
                                                                 columnNumber: 23
                                                             }, this),
                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -8807,13 +9115,13 @@ function FinetunePage() {
                                                                 children: trainingConfig.aiJudge
                                                             }, void 0, false, {
                                                                 fileName: "[project]/components/pages/FinetunePage.tsx",
-                                                                lineNumber: 465,
+                                                                lineNumber: 583,
                                                                 columnNumber: 23
                                                             }, this)
                                                         ]
                                                     }, void 0, true, {
                                                         fileName: "[project]/components/pages/FinetunePage.tsx",
-                                                        lineNumber: 463,
+                                                        lineNumber: 581,
                                                         columnNumber: 21
                                                     }, this),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -8823,7 +9131,7 @@ function FinetunePage() {
                                                                 children: "Model"
                                                             }, void 0, false, {
                                                                 fileName: "[project]/components/pages/FinetunePage.tsx",
-                                                                lineNumber: 468,
+                                                                lineNumber: 586,
                                                                 columnNumber: 23
                                                             }, this),
                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -8831,13 +9139,13 @@ function FinetunePage() {
                                                                 children: selectedModel
                                                             }, void 0, false, {
                                                                 fileName: "[project]/components/pages/FinetunePage.tsx",
-                                                                lineNumber: 469,
+                                                                lineNumber: 587,
                                                                 columnNumber: 23
                                                             }, this)
                                                         ]
                                                     }, void 0, true, {
                                                         fileName: "[project]/components/pages/FinetunePage.tsx",
-                                                        lineNumber: 467,
+                                                        lineNumber: 585,
                                                         columnNumber: 21
                                                     }, this),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -8847,7 +9155,7 @@ function FinetunePage() {
                                                                 children: "Strategy"
                                                             }, void 0, false, {
                                                                 fileName: "[project]/components/pages/FinetunePage.tsx",
-                                                                lineNumber: 472,
+                                                                lineNumber: 590,
                                                                 columnNumber: 23
                                                             }, this),
                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -8859,13 +9167,13 @@ function FinetunePage() {
                                                                 ]
                                                             }, void 0, true, {
                                                                 fileName: "[project]/components/pages/FinetunePage.tsx",
-                                                                lineNumber: 473,
+                                                                lineNumber: 591,
                                                                 columnNumber: 23
                                                             }, this)
                                                         ]
                                                     }, void 0, true, {
                                                         fileName: "[project]/components/pages/FinetunePage.tsx",
-                                                        lineNumber: 471,
+                                                        lineNumber: 589,
                                                         columnNumber: 21
                                                     }, this),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -8875,7 +9183,7 @@ function FinetunePage() {
                                                                 children: "Guidelines"
                                                             }, void 0, false, {
                                                                 fileName: "[project]/components/pages/FinetunePage.tsx",
-                                                                lineNumber: 476,
+                                                                lineNumber: 594,
                                                                 columnNumber: 23
                                                             }, this),
                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -8886,13 +9194,37 @@ function FinetunePage() {
                                                                 ]
                                                             }, void 0, true, {
                                                                 fileName: "[project]/components/pages/FinetunePage.tsx",
-                                                                lineNumber: 477,
+                                                                lineNumber: 595,
                                                                 columnNumber: 23
                                                             }, this)
                                                         ]
                                                     }, void 0, true, {
                                                         fileName: "[project]/components/pages/FinetunePage.tsx",
-                                                        lineNumber: 475,
+                                                        lineNumber: 593,
+                                                        columnNumber: 21
+                                                    }, this),
+                                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                                        children: [
+                                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
+                                                                className: "text-sm text-zinc-400",
+                                                                children: "Output Format"
+                                                            }, void 0, false, {
+                                                                fileName: "[project]/components/pages/FinetunePage.tsx",
+                                                                lineNumber: 598,
+                                                                columnNumber: 23
+                                                            }, this),
+                                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
+                                                                className: "font-medium capitalize",
+                                                                children: outputFormat
+                                                            }, void 0, false, {
+                                                                fileName: "[project]/components/pages/FinetunePage.tsx",
+                                                                lineNumber: 599,
+                                                                columnNumber: 23
+                                                            }, this)
+                                                        ]
+                                                    }, void 0, true, {
+                                                        fileName: "[project]/components/pages/FinetunePage.tsx",
+                                                        lineNumber: 597,
                                                         columnNumber: 21
                                                     }, this),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -8902,32 +9234,83 @@ function FinetunePage() {
                                                                 children: "RLEF Pattern"
                                                             }, void 0, false, {
                                                                 fileName: "[project]/components/pages/FinetunePage.tsx",
-                                                                lineNumber: 480,
+                                                                lineNumber: 602,
                                                                 columnNumber: 23
                                                             }, this),
                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
                                                                 className: "font-mono text-xs",
-                                                                children: rlefRegex
+                                                                children: outputFormat === 'regex' ? rlefRegex : 'JSON Schema'
                                                             }, void 0, false, {
                                                                 fileName: "[project]/components/pages/FinetunePage.tsx",
-                                                                lineNumber: 481,
+                                                                lineNumber: 603,
                                                                 columnNumber: 23
                                                             }, this)
                                                         ]
                                                     }, void 0, true, {
                                                         fileName: "[project]/components/pages/FinetunePage.tsx",
-                                                        lineNumber: 479,
+                                                        lineNumber: 601,
+                                                        columnNumber: 21
+                                                    }, this),
+                                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                                        children: [
+                                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
+                                                                className: "text-sm text-zinc-400",
+                                                                children: "Reasoning Effort"
+                                                            }, void 0, false, {
+                                                                fileName: "[project]/components/pages/FinetunePage.tsx",
+                                                                lineNumber: 606,
+                                                                columnNumber: 23
+                                                            }, this),
+                                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
+                                                                className: "font-medium capitalize",
+                                                                children: reasoningEffort
+                                                            }, void 0, false, {
+                                                                fileName: "[project]/components/pages/FinetunePage.tsx",
+                                                                lineNumber: 607,
+                                                                columnNumber: 23
+                                                            }, this)
+                                                        ]
+                                                    }, void 0, true, {
+                                                        fileName: "[project]/components/pages/FinetunePage.tsx",
+                                                        lineNumber: 605,
+                                                        columnNumber: 21
+                                                    }, this),
+                                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                                        children: [
+                                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
+                                                                className: "text-sm text-zinc-400",
+                                                                children: "Latency SLA"
+                                                            }, void 0, false, {
+                                                                fileName: "[project]/components/pages/FinetunePage.tsx",
+                                                                lineNumber: 610,
+                                                                columnNumber: 23
+                                                            }, this),
+                                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
+                                                                className: "font-medium",
+                                                                children: [
+                                                                    latencySLA,
+                                                                    "ms"
+                                                                ]
+                                                            }, void 0, true, {
+                                                                fileName: "[project]/components/pages/FinetunePage.tsx",
+                                                                lineNumber: 611,
+                                                                columnNumber: 23
+                                                            }, this)
+                                                        ]
+                                                    }, void 0, true, {
+                                                        fileName: "[project]/components/pages/FinetunePage.tsx",
+                                                        lineNumber: 609,
                                                         columnNumber: 21
                                                     }, this)
                                                 ]
                                             }, void 0, true, {
                                                 fileName: "[project]/components/pages/FinetunePage.tsx",
-                                                lineNumber: 458,
+                                                lineNumber: 576,
                                                 columnNumber: 19
                                             }, this)
                                         }, void 0, false, {
                                             fileName: "[project]/components/pages/FinetunePage.tsx",
-                                            lineNumber: 457,
+                                            lineNumber: 575,
                                             columnNumber: 17
                                         }, this),
                                         !training && !trainingComplete && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$button$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Button"], {
@@ -8937,7 +9320,7 @@ function FinetunePage() {
                                             children: "Start Training"
                                         }, void 0, false, {
                                             fileName: "[project]/components/pages/FinetunePage.tsx",
-                                            lineNumber: 487,
+                                            lineNumber: 617,
                                             columnNumber: 19
                                         }, this),
                                         (training || trainingComplete) && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Card"], {
@@ -8953,7 +9336,7 @@ function FinetunePage() {
                                                                     children: "Training Progress"
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/components/pages/FinetunePage.tsx",
-                                                                    lineNumber: 500,
+                                                                    lineNumber: 630,
                                                                     columnNumber: 25
                                                                 }, this),
                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -8964,26 +9347,26 @@ function FinetunePage() {
                                                                     ]
                                                                 }, void 0, true, {
                                                                     fileName: "[project]/components/pages/FinetunePage.tsx",
-                                                                    lineNumber: 501,
+                                                                    lineNumber: 631,
                                                                     columnNumber: 25
                                                                 }, this)
                                                             ]
                                                         }, void 0, true, {
                                                             fileName: "[project]/components/pages/FinetunePage.tsx",
-                                                            lineNumber: 499,
+                                                            lineNumber: 629,
                                                             columnNumber: 23
                                                         }, this),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$progress$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Progress"], {
                                                             value: trainingProgress
                                                         }, void 0, false, {
                                                             fileName: "[project]/components/pages/FinetunePage.tsx",
-                                                            lineNumber: 505,
+                                                            lineNumber: 635,
                                                             columnNumber: 23
                                                         }, this)
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/components/pages/FinetunePage.tsx",
-                                                    lineNumber: 498,
+                                                    lineNumber: 628,
                                                     columnNumber: 21
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -8993,12 +9376,12 @@ function FinetunePage() {
                                                             children: log
                                                         }, i, false, {
                                                             fileName: "[project]/components/pages/FinetunePage.tsx",
-                                                            lineNumber: 510,
+                                                            lineNumber: 640,
                                                             columnNumber: 25
                                                         }, this))
                                                 }, void 0, false, {
                                                     fileName: "[project]/components/pages/FinetunePage.tsx",
-                                                    lineNumber: 508,
+                                                    lineNumber: 638,
                                                     columnNumber: 21
                                                 }, this),
                                                 trainingComplete && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -9013,14 +9396,14 @@ function FinetunePage() {
                                                                     className: "w-4 h-4 mr-2"
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/components/pages/FinetunePage.tsx",
-                                                                    lineNumber: 523,
+                                                                    lineNumber: 653,
                                                                     columnNumber: 27
                                                                 }, this),
                                                                 "config.yaml"
                                                             ]
                                                         }, void 0, true, {
                                                             fileName: "[project]/components/pages/FinetunePage.tsx",
-                                                            lineNumber: 518,
+                                                            lineNumber: 648,
                                                             columnNumber: 25
                                                         }, this),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$button$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Button"], {
@@ -9032,26 +9415,26 @@ function FinetunePage() {
                                                                     className: "w-4 h-4 mr-2"
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/components/pages/FinetunePage.tsx",
-                                                                    lineNumber: 531,
+                                                                    lineNumber: 661,
                                                                     columnNumber: 27
                                                                 }, this),
                                                                 "adapter.safetensors"
                                                             ]
                                                         }, void 0, true, {
                                                             fileName: "[project]/components/pages/FinetunePage.tsx",
-                                                            lineNumber: 526,
+                                                            lineNumber: 656,
                                                             columnNumber: 25
                                                         }, this)
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/components/pages/FinetunePage.tsx",
-                                                    lineNumber: 517,
+                                                    lineNumber: 647,
                                                     columnNumber: 23
                                                 }, this)
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/components/pages/FinetunePage.tsx",
-                                            lineNumber: 497,
+                                            lineNumber: 627,
                                             columnNumber: 19
                                         }, this)
                                     ]
@@ -9059,12 +9442,12 @@ function FinetunePage() {
                             ]
                         }, void 0, true, {
                             fileName: "[project]/components/pages/FinetunePage.tsx",
-                            lineNumber: 264,
+                            lineNumber: 271,
                             columnNumber: 11
                         }, this)
                     }, void 0, false, {
                         fileName: "[project]/components/pages/FinetunePage.tsx",
-                        lineNumber: 263,
+                        lineNumber: 270,
                         columnNumber: 9
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -9081,14 +9464,14 @@ function FinetunePage() {
                                             className: "w-4 h-4 mr-2"
                                         }, void 0, false, {
                                             fileName: "[project]/components/pages/FinetunePage.tsx",
-                                            lineNumber: 551,
+                                            lineNumber: 681,
                                             columnNumber: 15
                                         }, this),
                                         "Previous"
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/components/pages/FinetunePage.tsx",
-                                    lineNumber: 546,
+                                    lineNumber: 676,
                                     columnNumber: 13
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -9100,7 +9483,7 @@ function FinetunePage() {
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/components/pages/FinetunePage.tsx",
-                                    lineNumber: 555,
+                                    lineNumber: 685,
                                     columnNumber: 13
                                 }, this),
                                 currentStep < 4 ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$button$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Button"], {
@@ -9112,13 +9495,13 @@ function FinetunePage() {
                                             className: "w-4 h-4 ml-2"
                                         }, void 0, false, {
                                             fileName: "[project]/components/pages/FinetunePage.tsx",
-                                            lineNumber: 569,
+                                            lineNumber: 699,
                                             columnNumber: 17
                                         }, this)
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/components/pages/FinetunePage.tsx",
-                                    lineNumber: 560,
+                                    lineNumber: 690,
                                     columnNumber: 15
                                 }, this) : /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$button$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Button"], {
                                     onClick: ()=>navigateTo('dashboard'),
@@ -9127,34 +9510,34 @@ function FinetunePage() {
                                     children: "View Results"
                                 }, void 0, false, {
                                     fileName: "[project]/components/pages/FinetunePage.tsx",
-                                    lineNumber: 572,
+                                    lineNumber: 702,
                                     columnNumber: 15
                                 }, this)
                             ]
                         }, void 0, true, {
                             fileName: "[project]/components/pages/FinetunePage.tsx",
-                            lineNumber: 545,
+                            lineNumber: 675,
                             columnNumber: 11
                         }, this)
                     }, void 0, false, {
                         fileName: "[project]/components/pages/FinetunePage.tsx",
-                        lineNumber: 544,
+                        lineNumber: 674,
                         columnNumber: 9
                     }, this)
                 ]
             }, void 0, true, {
                 fileName: "[project]/components/pages/FinetunePage.tsx",
-                lineNumber: 261,
+                lineNumber: 268,
                 columnNumber: 7
             }, this)
         ]
     }, void 0, true, {
         fileName: "[project]/components/pages/FinetunePage.tsx",
-        lineNumber: 209,
+        lineNumber: 216,
         columnNumber: 5
     }, this);
 }
-_s(FinetunePage, "8iaqQ474ERV3bz8hROjpBdnE1D8=", false, function() {
+_s(FinetunePage, "+feaPMsRkFBX8aTmUld/mldP4v4=", false, function() {
     return [
         __TURBOPACK__imported__module__$5b$project$5d2f$store$2f$useStore$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useStore"]
     ];
@@ -9701,15 +10084,15 @@ function DashboardPage() {
                     className: "max-w-7xl mx-auto space-y-6",
                     children: [
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                            className: "grid grid-cols-3 gap-4",
+                            className: "grid grid-cols-3 gap-6",
                             children: [
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Card"], {
-                                    className: "p-6 bg-zinc-800 border-zinc-700",
+                                    className: "p-8 bg-gradient-to-br from-zinc-800 to-zinc-900 border-2 border-zinc-700 hover:border-[#00A99D] transition-all shadow-lg",
                                     children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                        className: "space-y-2",
+                                        className: "space-y-3",
                                         children: [
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
-                                                className: "text-sm text-zinc-400",
+                                                className: "text-sm font-semibold text-zinc-400 uppercase tracking-wider",
                                                 children: "Intent Accuracy"
                                             }, void 0, false, {
                                                 fileName: "[project]/components/pages/DashboardPage.tsx",
@@ -9717,10 +10100,10 @@ function DashboardPage() {
                                                 columnNumber: 17
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                                className: "flex items-baseline gap-2",
+                                                className: "flex items-baseline gap-3",
                                                 children: [
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
-                                                        className: "text-3xl font-bold",
+                                                        className: "text-5xl font-black text-white",
                                                         children: [
                                                             metrics.trained.intent,
                                                             "%"
@@ -9733,16 +10116,16 @@ function DashboardPage() {
                                                     (()=>{
                                                         const { percentage, isPositive } = calculateDelta(metrics.trained.intent, metrics.gpt4o.intent);
                                                         return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                                            className: `flex items-center text-sm ${isPositive ? 'text-green-400' : 'text-red-400'}`,
+                                                            className: `flex items-center gap-1 text-lg font-bold ${isPositive ? 'text-green-400' : 'text-red-400'}`,
                                                             children: [
                                                                 isPositive ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$trending$2d$up$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__TrendingUp$3e$__["TrendingUp"], {
-                                                                    className: "w-3 h-3"
+                                                                    className: "w-5 h-5"
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/components/pages/DashboardPage.tsx",
                                                                     lineNumber: 272,
                                                                     columnNumber: 39
                                                                 }, this) : /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$trending$2d$down$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__TrendingDown$3e$__["TrendingDown"], {
-                                                                    className: "w-3 h-3"
+                                                                    className: "w-5 h-5"
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/components/pages/DashboardPage.tsx",
                                                                     lineNumber: 272,
@@ -9763,14 +10146,27 @@ function DashboardPage() {
                                                 lineNumber: 263,
                                                 columnNumber: 17
                                             }, this),
-                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
-                                                className: "text-xs text-zinc-500",
-                                                children: [
-                                                    "vs GPT-4o: ",
-                                                    metrics.gpt4o.intent,
-                                                    "%"
-                                                ]
-                                            }, void 0, true, {
+                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                                className: "pt-2 border-t border-zinc-700",
+                                                children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
+                                                    className: "text-sm font-medium text-zinc-400",
+                                                    children: [
+                                                        "vs GPT-4o ",
+                                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
+                                                            className: "text-blue-400 font-bold",
+                                                            children: "(90%)"
+                                                        }, void 0, false, {
+                                                            fileName: "[project]/components/pages/DashboardPage.tsx",
+                                                            lineNumber: 280,
+                                                            columnNumber: 31
+                                                        }, this)
+                                                    ]
+                                                }, void 0, true, {
+                                                    fileName: "[project]/components/pages/DashboardPage.tsx",
+                                                    lineNumber: 279,
+                                                    columnNumber: 19
+                                                }, this)
+                                            }, void 0, false, {
                                                 fileName: "[project]/components/pages/DashboardPage.tsx",
                                                 lineNumber: 278,
                                                 columnNumber: 17
@@ -9787,30 +10183,37 @@ function DashboardPage() {
                                     columnNumber: 13
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Card"], {
-                                    className: "p-6 bg-zinc-800 border-zinc-700",
+                                    className: "p-8 bg-gradient-to-br from-zinc-800 to-zinc-900 border-2 border-zinc-700 hover:border-[#00A99D] transition-all shadow-lg",
                                     children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                        className: "space-y-2",
+                                        className: "space-y-3",
                                         children: [
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
-                                                className: "text-sm text-zinc-400",
+                                                className: "text-sm font-semibold text-zinc-400 uppercase tracking-wider",
                                                 children: "Latency (p50)"
                                             }, void 0, false, {
                                                 fileName: "[project]/components/pages/DashboardPage.tsx",
-                                                lineNumber: 285,
+                                                lineNumber: 289,
                                                 columnNumber: 17
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                                className: "flex items-baseline gap-2",
+                                                className: "flex items-baseline gap-3",
                                                 children: [
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
-                                                        className: "text-3xl font-bold",
+                                                        className: "text-5xl font-black text-white",
                                                         children: [
                                                             metrics.trained.p50,
-                                                            "ms"
+                                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
+                                                                className: "text-2xl",
+                                                                children: "ms"
+                                                            }, void 0, false, {
+                                                                fileName: "[project]/components/pages/DashboardPage.tsx",
+                                                                lineNumber: 291,
+                                                                columnNumber: 86
+                                                            }, this)
                                                         ]
                                                     }, void 0, true, {
                                                         fileName: "[project]/components/pages/DashboardPage.tsx",
-                                                        lineNumber: 287,
+                                                        lineNumber: 291,
                                                         columnNumber: 19
                                                     }, this),
                                                     (()=>{
@@ -9818,19 +10221,19 @@ function DashboardPage() {
                                                         const percentage = (delta / metrics.gpt4o.p50 * 100).toFixed(1);
                                                         const isImprovement = delta < 0; // Lower is better
                                                         return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                                            className: `flex items-center text-sm ${isImprovement ? 'text-green-400' : 'text-red-400'}`,
+                                                            className: `flex items-center gap-1 text-lg font-bold ${isImprovement ? 'text-green-400' : 'text-red-400'}`,
                                                             children: [
                                                                 isImprovement ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$trending$2d$down$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__TrendingDown$3e$__["TrendingDown"], {
-                                                                    className: "w-3 h-3"
+                                                                    className: "w-5 h-5"
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/components/pages/DashboardPage.tsx",
-                                                                    lineNumber: 294,
+                                                                    lineNumber: 298,
                                                                     columnNumber: 42
                                                                 }, this) : /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$trending$2d$up$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__TrendingUp$3e$__["TrendingUp"], {
-                                                                    className: "w-3 h-3"
+                                                                    className: "w-5 h-5"
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/components/pages/DashboardPage.tsx",
-                                                                    lineNumber: 294,
+                                                                    lineNumber: 298,
                                                                     columnNumber: 81
                                                                 }, this),
                                                                 Math.abs(parseFloat(percentage)),
@@ -9838,64 +10241,81 @@ function DashboardPage() {
                                                             ]
                                                         }, void 0, true, {
                                                             fileName: "[project]/components/pages/DashboardPage.tsx",
-                                                            lineNumber: 293,
+                                                            lineNumber: 297,
                                                             columnNumber: 23
                                                         }, this);
                                                     })()
                                                 ]
                                             }, void 0, true, {
                                                 fileName: "[project]/components/pages/DashboardPage.tsx",
-                                                lineNumber: 286,
+                                                lineNumber: 290,
                                                 columnNumber: 17
                                             }, this),
-                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
-                                                className: "text-xs text-zinc-500",
-                                                children: [
-                                                    "vs GPT-4o: ",
-                                                    metrics.gpt4o.p50,
-                                                    "ms"
-                                                ]
-                                            }, void 0, true, {
+                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                                className: "pt-2 border-t border-zinc-700",
+                                                children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
+                                                    className: "text-sm font-medium text-zinc-400",
+                                                    children: [
+                                                        "vs GPT-4o ",
+                                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
+                                                            className: "text-blue-400 font-bold",
+                                                            children: [
+                                                                "(",
+                                                                metrics.gpt4o.p50,
+                                                                "ms)"
+                                                            ]
+                                                        }, void 0, true, {
+                                                            fileName: "[project]/components/pages/DashboardPage.tsx",
+                                                            lineNumber: 306,
+                                                            columnNumber: 31
+                                                        }, this)
+                                                    ]
+                                                }, void 0, true, {
+                                                    fileName: "[project]/components/pages/DashboardPage.tsx",
+                                                    lineNumber: 305,
+                                                    columnNumber: 19
+                                                }, this)
+                                            }, void 0, false, {
                                                 fileName: "[project]/components/pages/DashboardPage.tsx",
-                                                lineNumber: 300,
+                                                lineNumber: 304,
                                                 columnNumber: 17
                                             }, this)
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/components/pages/DashboardPage.tsx",
-                                        lineNumber: 284,
+                                        lineNumber: 288,
                                         columnNumber: 15
                                     }, this)
                                 }, void 0, false, {
                                     fileName: "[project]/components/pages/DashboardPage.tsx",
-                                    lineNumber: 283,
+                                    lineNumber: 287,
                                     columnNumber: 13
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Card"], {
-                                    className: "p-6 bg-zinc-800 border-zinc-700",
+                                    className: "p-8 bg-gradient-to-br from-zinc-800 to-zinc-900 border-2 border-zinc-700 hover:border-[#00A99D] transition-all shadow-lg",
                                     children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                        className: "space-y-2",
+                                        className: "space-y-3",
                                         children: [
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
-                                                className: "text-sm text-zinc-400",
+                                                className: "text-sm font-semibold text-zinc-400 uppercase tracking-wider",
                                                 children: "Cost / 1k req"
                                             }, void 0, false, {
                                                 fileName: "[project]/components/pages/DashboardPage.tsx",
-                                                lineNumber: 307,
+                                                lineNumber: 315,
                                                 columnNumber: 17
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                                className: "flex items-baseline gap-2",
+                                                className: "flex items-baseline gap-3",
                                                 children: [
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
-                                                        className: "text-3xl font-bold",
+                                                        className: "text-5xl font-black text-white",
                                                         children: [
                                                             "$",
                                                             metrics.trained.cost
                                                         ]
                                                     }, void 0, true, {
                                                         fileName: "[project]/components/pages/DashboardPage.tsx",
-                                                        lineNumber: 309,
+                                                        lineNumber: 317,
                                                         columnNumber: 19
                                                     }, this),
                                                     (()=>{
@@ -9903,19 +10323,19 @@ function DashboardPage() {
                                                         const percentage = (delta / metrics.gpt4o.cost * 100).toFixed(1);
                                                         const isImprovement = delta < 0; // Lower is better
                                                         return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                                            className: `flex items-center text-sm ${isImprovement ? 'text-green-400' : 'text-red-400'}`,
+                                                            className: `flex items-center gap-1 text-lg font-bold ${isImprovement ? 'text-green-400' : 'text-red-400'}`,
                                                             children: [
                                                                 isImprovement ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$trending$2d$down$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__TrendingDown$3e$__["TrendingDown"], {
-                                                                    className: "w-3 h-3"
+                                                                    className: "w-5 h-5"
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/components/pages/DashboardPage.tsx",
-                                                                    lineNumber: 316,
+                                                                    lineNumber: 324,
                                                                     columnNumber: 42
                                                                 }, this) : /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$trending$2d$up$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__TrendingUp$3e$__["TrendingUp"], {
-                                                                    className: "w-3 h-3"
+                                                                    className: "w-5 h-5"
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/components/pages/DashboardPage.tsx",
-                                                                    lineNumber: 316,
+                                                                    lineNumber: 324,
                                                                     columnNumber: 81
                                                                 }, this),
                                                                 Math.abs(parseFloat(percentage)),
@@ -9923,42 +10343,168 @@ function DashboardPage() {
                                                             ]
                                                         }, void 0, true, {
                                                             fileName: "[project]/components/pages/DashboardPage.tsx",
-                                                            lineNumber: 315,
+                                                            lineNumber: 323,
                                                             columnNumber: 23
                                                         }, this);
                                                     })()
                                                 ]
                                             }, void 0, true, {
                                                 fileName: "[project]/components/pages/DashboardPage.tsx",
-                                                lineNumber: 308,
+                                                lineNumber: 316,
                                                 columnNumber: 17
                                             }, this),
-                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
-                                                className: "text-xs text-zinc-500",
-                                                children: [
-                                                    "vs GPT-4o: $",
-                                                    metrics.gpt4o.cost
-                                                ]
-                                            }, void 0, true, {
+                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                                className: "pt-2 border-t border-zinc-700",
+                                                children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
+                                                    className: "text-sm font-medium text-zinc-400",
+                                                    children: [
+                                                        "vs GPT-4o ",
+                                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
+                                                            className: "text-blue-400 font-bold",
+                                                            children: [
+                                                                "($",
+                                                                metrics.gpt4o.cost,
+                                                                ")"
+                                                            ]
+                                                        }, void 0, true, {
+                                                            fileName: "[project]/components/pages/DashboardPage.tsx",
+                                                            lineNumber: 332,
+                                                            columnNumber: 31
+                                                        }, this)
+                                                    ]
+                                                }, void 0, true, {
+                                                    fileName: "[project]/components/pages/DashboardPage.tsx",
+                                                    lineNumber: 331,
+                                                    columnNumber: 19
+                                                }, this)
+                                            }, void 0, false, {
                                                 fileName: "[project]/components/pages/DashboardPage.tsx",
-                                                lineNumber: 322,
+                                                lineNumber: 330,
                                                 columnNumber: 17
                                             }, this)
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/components/pages/DashboardPage.tsx",
-                                        lineNumber: 306,
+                                        lineNumber: 314,
                                         columnNumber: 15
                                     }, this)
                                 }, void 0, false, {
                                     fileName: "[project]/components/pages/DashboardPage.tsx",
-                                    lineNumber: 305,
+                                    lineNumber: 313,
                                     columnNumber: 13
                                 }, this)
                             ]
                         }, void 0, true, {
                             fileName: "[project]/components/pages/DashboardPage.tsx",
                             lineNumber: 258,
+                            columnNumber: 11
+                        }, this),
+                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                            children: [
+                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("h2", {
+                                    className: "text-xl font-semibold mb-4",
+                                    children: "Intent Accuracy Training Progress"
+                                }, void 0, false, {
+                                    fileName: "[project]/components/pages/DashboardPage.tsx",
+                                    lineNumber: 341,
+                                    columnNumber: 13
+                                }, this),
+                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Card"], {
+                                    className: "p-6 bg-zinc-800 border-zinc-700",
+                                    children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$recharts$2f$es6$2f$component$2f$ResponsiveContainer$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["ResponsiveContainer"], {
+                                        width: "100%",
+                                        height: 320,
+                                        children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$recharts$2f$es6$2f$chart$2f$LineChart$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["LineChart"], {
+                                            data: TRAINING_CURVES,
+                                            margin: {
+                                                top: 5,
+                                                right: 30,
+                                                left: 0,
+                                                bottom: 20
+                                            },
+                                            children: [
+                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$recharts$2f$es6$2f$cartesian$2f$CartesianGrid$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["CartesianGrid"], {
+                                                    strokeDasharray: "3 3",
+                                                    stroke: "#3f3f46"
+                                                }, void 0, false, {
+                                                    fileName: "[project]/components/pages/DashboardPage.tsx",
+                                                    lineNumber: 345,
+                                                    columnNumber: 19
+                                                }, this),
+                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$recharts$2f$es6$2f$cartesian$2f$XAxis$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["XAxis"], {
+                                                    dataKey: "training_step",
+                                                    stroke: "#a1a1aa",
+                                                    label: {
+                                                        value: 'Training Steps',
+                                                        position: 'insideBottom',
+                                                        offset: -10,
+                                                        fill: '#a1a1aa'
+                                                    }
+                                                }, void 0, false, {
+                                                    fileName: "[project]/components/pages/DashboardPage.tsx",
+                                                    lineNumber: 346,
+                                                    columnNumber: 19
+                                                }, this),
+                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$recharts$2f$es6$2f$cartesian$2f$YAxis$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["YAxis"], {
+                                                    stroke: "#a1a1aa",
+                                                    domain: [
+                                                        70,
+                                                        100
+                                                    ],
+                                                    label: {
+                                                        value: 'Accuracy (%)',
+                                                        angle: -90,
+                                                        position: 'insideLeft'
+                                                    }
+                                                }, void 0, false, {
+                                                    fileName: "[project]/components/pages/DashboardPage.tsx",
+                                                    lineNumber: 351,
+                                                    columnNumber: 19
+                                                }, this),
+                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$recharts$2f$es6$2f$component$2f$Tooltip$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Tooltip"], {
+                                                    contentStyle: {
+                                                        backgroundColor: '#27272a',
+                                                        border: '1px solid #3f3f46'
+                                                    },
+                                                    labelStyle: {
+                                                        color: '#fff'
+                                                    }
+                                                }, void 0, false, {
+                                                    fileName: "[project]/components/pages/DashboardPage.tsx",
+                                                    lineNumber: 352,
+                                                    columnNumber: 19
+                                                }, this),
+                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$recharts$2f$es6$2f$cartesian$2f$Line$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Line"], {
+                                                    type: "monotone",
+                                                    dataKey: "accuracy",
+                                                    stroke: "#10b981",
+                                                    strokeWidth: 3,
+                                                    dot: false
+                                                }, void 0, false, {
+                                                    fileName: "[project]/components/pages/DashboardPage.tsx",
+                                                    lineNumber: 356,
+                                                    columnNumber: 19
+                                                }, this)
+                                            ]
+                                        }, void 0, true, {
+                                            fileName: "[project]/components/pages/DashboardPage.tsx",
+                                            lineNumber: 344,
+                                            columnNumber: 17
+                                        }, this)
+                                    }, void 0, false, {
+                                        fileName: "[project]/components/pages/DashboardPage.tsx",
+                                        lineNumber: 343,
+                                        columnNumber: 15
+                                    }, this)
+                                }, void 0, false, {
+                                    fileName: "[project]/components/pages/DashboardPage.tsx",
+                                    lineNumber: 342,
+                                    columnNumber: 13
+                                }, this)
+                            ]
+                        }, void 0, true, {
+                            fileName: "[project]/components/pages/DashboardPage.tsx",
+                            lineNumber: 340,
                             columnNumber: 11
                         }, this),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -9969,7 +10515,7 @@ function DashboardPage() {
                                     children: "RL Training Curves"
                                 }, void 0, false, {
                                     fileName: "[project]/components/pages/DashboardPage.tsx",
-                                    lineNumber: 329,
+                                    lineNumber: 364,
                                     columnNumber: 13
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -9983,7 +10529,7 @@ function DashboardPage() {
                                                     children: "Total Loss Over Time"
                                                 }, void 0, false, {
                                                     fileName: "[project]/components/pages/DashboardPage.tsx",
-                                                    lineNumber: 335,
+                                                    lineNumber: 370,
                                                     columnNumber: 17
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$recharts$2f$es6$2f$component$2f$ResponsiveContainer$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["ResponsiveContainer"], {
@@ -9997,7 +10543,7 @@ function DashboardPage() {
                                                                 stroke: "#3f3f46"
                                                             }, void 0, false, {
                                                                 fileName: "[project]/components/pages/DashboardPage.tsx",
-                                                                lineNumber: 338,
+                                                                lineNumber: 373,
                                                                 columnNumber: 21
                                                             }, this),
                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$recharts$2f$es6$2f$cartesian$2f$XAxis$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["XAxis"], {
@@ -10005,7 +10551,7 @@ function DashboardPage() {
                                                                 stroke: "#a1a1aa"
                                                             }, void 0, false, {
                                                                 fileName: "[project]/components/pages/DashboardPage.tsx",
-                                                                lineNumber: 339,
+                                                                lineNumber: 374,
                                                                 columnNumber: 21
                                                             }, this),
                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$recharts$2f$es6$2f$cartesian$2f$YAxis$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["YAxis"], {
@@ -10017,7 +10563,7 @@ function DashboardPage() {
                                                                 }
                                                             }, void 0, false, {
                                                                 fileName: "[project]/components/pages/DashboardPage.tsx",
-                                                                lineNumber: 340,
+                                                                lineNumber: 375,
                                                                 columnNumber: 21
                                                             }, this),
                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$recharts$2f$es6$2f$component$2f$Tooltip$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Tooltip"], {
@@ -10030,7 +10576,7 @@ function DashboardPage() {
                                                                 }
                                                             }, void 0, false, {
                                                                 fileName: "[project]/components/pages/DashboardPage.tsx",
-                                                                lineNumber: 341,
+                                                                lineNumber: 376,
                                                                 columnNumber: 21
                                                             }, this),
                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$recharts$2f$es6$2f$cartesian$2f$Line$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Line"], {
@@ -10041,24 +10587,24 @@ function DashboardPage() {
                                                                 dot: false
                                                             }, void 0, false, {
                                                                 fileName: "[project]/components/pages/DashboardPage.tsx",
-                                                                lineNumber: 345,
+                                                                lineNumber: 380,
                                                                 columnNumber: 21
                                                             }, this)
                                                         ]
                                                     }, void 0, true, {
                                                         fileName: "[project]/components/pages/DashboardPage.tsx",
-                                                        lineNumber: 337,
+                                                        lineNumber: 372,
                                                         columnNumber: 19
                                                     }, this)
                                                 }, void 0, false, {
                                                     fileName: "[project]/components/pages/DashboardPage.tsx",
-                                                    lineNumber: 336,
+                                                    lineNumber: 371,
                                                     columnNumber: 17
                                                 }, this)
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/components/pages/DashboardPage.tsx",
-                                            lineNumber: 334,
+                                            lineNumber: 369,
                                             columnNumber: 15
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Card"], {
@@ -10069,7 +10615,7 @@ function DashboardPage() {
                                                     children: "Average Reward Over Time"
                                                 }, void 0, false, {
                                                     fileName: "[project]/components/pages/DashboardPage.tsx",
-                                                    lineNumber: 352,
+                                                    lineNumber: 387,
                                                     columnNumber: 17
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$recharts$2f$es6$2f$component$2f$ResponsiveContainer$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["ResponsiveContainer"], {
@@ -10083,7 +10629,7 @@ function DashboardPage() {
                                                                 stroke: "#3f3f46"
                                                             }, void 0, false, {
                                                                 fileName: "[project]/components/pages/DashboardPage.tsx",
-                                                                lineNumber: 355,
+                                                                lineNumber: 390,
                                                                 columnNumber: 21
                                                             }, this),
                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$recharts$2f$es6$2f$cartesian$2f$XAxis$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["XAxis"], {
@@ -10091,7 +10637,7 @@ function DashboardPage() {
                                                                 stroke: "#a1a1aa"
                                                             }, void 0, false, {
                                                                 fileName: "[project]/components/pages/DashboardPage.tsx",
-                                                                lineNumber: 356,
+                                                                lineNumber: 391,
                                                                 columnNumber: 21
                                                             }, this),
                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$recharts$2f$es6$2f$cartesian$2f$YAxis$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["YAxis"], {
@@ -10103,7 +10649,7 @@ function DashboardPage() {
                                                                 }
                                                             }, void 0, false, {
                                                                 fileName: "[project]/components/pages/DashboardPage.tsx",
-                                                                lineNumber: 357,
+                                                                lineNumber: 392,
                                                                 columnNumber: 21
                                                             }, this),
                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$recharts$2f$es6$2f$component$2f$Tooltip$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Tooltip"], {
@@ -10116,7 +10662,7 @@ function DashboardPage() {
                                                                 }
                                                             }, void 0, false, {
                                                                 fileName: "[project]/components/pages/DashboardPage.tsx",
-                                                                lineNumber: 358,
+                                                                lineNumber: 393,
                                                                 columnNumber: 21
                                                             }, this),
                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$recharts$2f$es6$2f$cartesian$2f$Line$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Line"], {
@@ -10127,134 +10673,30 @@ function DashboardPage() {
                                                                 dot: false
                                                             }, void 0, false, {
                                                                 fileName: "[project]/components/pages/DashboardPage.tsx",
-                                                                lineNumber: 362,
+                                                                lineNumber: 397,
                                                                 columnNumber: 21
                                                             }, this)
                                                         ]
                                                     }, void 0, true, {
                                                         fileName: "[project]/components/pages/DashboardPage.tsx",
-                                                        lineNumber: 354,
+                                                        lineNumber: 389,
                                                         columnNumber: 19
                                                     }, this)
                                                 }, void 0, false, {
                                                     fileName: "[project]/components/pages/DashboardPage.tsx",
-                                                    lineNumber: 353,
+                                                    lineNumber: 388,
                                                     columnNumber: 17
                                                 }, this)
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/components/pages/DashboardPage.tsx",
-                                            lineNumber: 351,
+                                            lineNumber: 386,
                                             columnNumber: 15
                                         }, this)
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/components/pages/DashboardPage.tsx",
-                                    lineNumber: 332,
-                                    columnNumber: 13
-                                }, this),
-                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                    className: "grid grid-cols-2 gap-6",
-                                    children: [
-                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Card"], {
-                                            className: "p-6 bg-zinc-800 border-zinc-700",
-                                            children: [
-                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("h3", {
-                                                    className: "text-lg font-semibold mb-4",
-                                                    children: "Accuracy Over Time"
-                                                }, void 0, false, {
-                                                    fileName: "[project]/components/pages/DashboardPage.tsx",
-                                                    lineNumber: 372,
-                                                    columnNumber: 17
-                                                }, this),
-                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$recharts$2f$es6$2f$component$2f$ResponsiveContainer$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["ResponsiveContainer"], {
-                                                    width: "100%",
-                                                    height: 250,
-                                                    children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$recharts$2f$es6$2f$chart$2f$LineChart$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["LineChart"], {
-                                                        data: TRAINING_CURVES,
-                                                        children: [
-                                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$recharts$2f$es6$2f$cartesian$2f$CartesianGrid$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["CartesianGrid"], {
-                                                                strokeDasharray: "3 3",
-                                                                stroke: "#3f3f46"
-                                                            }, void 0, false, {
-                                                                fileName: "[project]/components/pages/DashboardPage.tsx",
-                                                                lineNumber: 375,
-                                                                columnNumber: 21
-                                                            }, this),
-                                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$recharts$2f$es6$2f$cartesian$2f$XAxis$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["XAxis"], {
-                                                                dataKey: "training_step",
-                                                                stroke: "#a1a1aa"
-                                                            }, void 0, false, {
-                                                                fileName: "[project]/components/pages/DashboardPage.tsx",
-                                                                lineNumber: 376,
-                                                                columnNumber: 21
-                                                            }, this),
-                                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$recharts$2f$es6$2f$cartesian$2f$YAxis$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["YAxis"], {
-                                                                stroke: "#a1a1aa",
-                                                                domain: [
-                                                                    70,
-                                                                    100
-                                                                ],
-                                                                label: {
-                                                                    value: 'Accuracy (%)',
-                                                                    angle: -90,
-                                                                    position: 'insideLeft'
-                                                                }
-                                                            }, void 0, false, {
-                                                                fileName: "[project]/components/pages/DashboardPage.tsx",
-                                                                lineNumber: 377,
-                                                                columnNumber: 21
-                                                            }, this),
-                                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$recharts$2f$es6$2f$component$2f$Tooltip$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Tooltip"], {
-                                                                contentStyle: {
-                                                                    backgroundColor: '#27272a',
-                                                                    border: '1px solid #3f3f46'
-                                                                },
-                                                                labelStyle: {
-                                                                    color: '#fff'
-                                                                }
-                                                            }, void 0, false, {
-                                                                fileName: "[project]/components/pages/DashboardPage.tsx",
-                                                                lineNumber: 378,
-                                                                columnNumber: 21
-                                                            }, this),
-                                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$recharts$2f$es6$2f$cartesian$2f$Line$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Line"], {
-                                                                type: "monotone",
-                                                                dataKey: "accuracy",
-                                                                stroke: "#3b82f6",
-                                                                strokeWidth: 2,
-                                                                dot: false
-                                                            }, void 0, false, {
-                                                                fileName: "[project]/components/pages/DashboardPage.tsx",
-                                                                lineNumber: 382,
-                                                                columnNumber: 21
-                                                            }, this)
-                                                        ]
-                                                    }, void 0, true, {
-                                                        fileName: "[project]/components/pages/DashboardPage.tsx",
-                                                        lineNumber: 374,
-                                                        columnNumber: 19
-                                                    }, this)
-                                                }, void 0, false, {
-                                                    fileName: "[project]/components/pages/DashboardPage.tsx",
-                                                    lineNumber: 373,
-                                                    columnNumber: 17
-                                                }, this)
-                                            ]
-                                        }, void 0, true, {
-                                            fileName: "[project]/components/pages/DashboardPage.tsx",
-                                            lineNumber: 371,
-                                            columnNumber: 15
-                                        }, this),
-                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {}, void 0, false, {
-                                            fileName: "[project]/components/pages/DashboardPage.tsx",
-                                            lineNumber: 388,
-                                            columnNumber: 15
-                                        }, this)
-                                    ]
-                                }, void 0, true, {
-                                    fileName: "[project]/components/pages/DashboardPage.tsx",
-                                    lineNumber: 369,
+                                    lineNumber: 367,
                                     columnNumber: 13
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -10268,7 +10710,7 @@ function DashboardPage() {
                                                     children: "KL Divergence"
                                                 }, void 0, false, {
                                                     fileName: "[project]/components/pages/DashboardPage.tsx",
-                                                    lineNumber: 394,
+                                                    lineNumber: 406,
                                                     columnNumber: 17
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$recharts$2f$es6$2f$component$2f$ResponsiveContainer$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["ResponsiveContainer"], {
@@ -10282,7 +10724,7 @@ function DashboardPage() {
                                                                 stroke: "#3f3f46"
                                                             }, void 0, false, {
                                                                 fileName: "[project]/components/pages/DashboardPage.tsx",
-                                                                lineNumber: 397,
+                                                                lineNumber: 409,
                                                                 columnNumber: 21
                                                             }, this),
                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$recharts$2f$es6$2f$cartesian$2f$XAxis$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["XAxis"], {
@@ -10290,7 +10732,7 @@ function DashboardPage() {
                                                                 stroke: "#a1a1aa"
                                                             }, void 0, false, {
                                                                 fileName: "[project]/components/pages/DashboardPage.tsx",
-                                                                lineNumber: 398,
+                                                                lineNumber: 410,
                                                                 columnNumber: 21
                                                             }, this),
                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$recharts$2f$es6$2f$cartesian$2f$YAxis$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["YAxis"], {
@@ -10302,7 +10744,7 @@ function DashboardPage() {
                                                                 }
                                                             }, void 0, false, {
                                                                 fileName: "[project]/components/pages/DashboardPage.tsx",
-                                                                lineNumber: 399,
+                                                                lineNumber: 411,
                                                                 columnNumber: 21
                                                             }, this),
                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$recharts$2f$es6$2f$component$2f$Tooltip$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Tooltip"], {
@@ -10315,7 +10757,7 @@ function DashboardPage() {
                                                                 }
                                                             }, void 0, false, {
                                                                 fileName: "[project]/components/pages/DashboardPage.tsx",
-                                                                lineNumber: 400,
+                                                                lineNumber: 412,
                                                                 columnNumber: 21
                                                             }, this),
                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$recharts$2f$es6$2f$cartesian$2f$Line$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Line"], {
@@ -10326,24 +10768,24 @@ function DashboardPage() {
                                                                 dot: false
                                                             }, void 0, false, {
                                                                 fileName: "[project]/components/pages/DashboardPage.tsx",
-                                                                lineNumber: 404,
+                                                                lineNumber: 416,
                                                                 columnNumber: 21
                                                             }, this)
                                                         ]
                                                     }, void 0, true, {
                                                         fileName: "[project]/components/pages/DashboardPage.tsx",
-                                                        lineNumber: 396,
+                                                        lineNumber: 408,
                                                         columnNumber: 19
                                                     }, this)
                                                 }, void 0, false, {
                                                     fileName: "[project]/components/pages/DashboardPage.tsx",
-                                                    lineNumber: 395,
+                                                    lineNumber: 407,
                                                     columnNumber: 17
                                                 }, this)
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/components/pages/DashboardPage.tsx",
-                                            lineNumber: 393,
+                                            lineNumber: 405,
                                             columnNumber: 15
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Card"], {
@@ -10354,7 +10796,7 @@ function DashboardPage() {
                                                     children: "Reward Progression (Intent Match)"
                                                 }, void 0, false, {
                                                     fileName: "[project]/components/pages/DashboardPage.tsx",
-                                                    lineNumber: 411,
+                                                    lineNumber: 423,
                                                     columnNumber: 17
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$recharts$2f$es6$2f$component$2f$ResponsiveContainer$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["ResponsiveContainer"], {
@@ -10368,7 +10810,7 @@ function DashboardPage() {
                                                                 stroke: "#3f3f46"
                                                             }, void 0, false, {
                                                                 fileName: "[project]/components/pages/DashboardPage.tsx",
-                                                                lineNumber: 414,
+                                                                lineNumber: 426,
                                                                 columnNumber: 21
                                                             }, this),
                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$recharts$2f$es6$2f$cartesian$2f$XAxis$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["XAxis"], {
@@ -10376,7 +10818,7 @@ function DashboardPage() {
                                                                 stroke: "#a1a1aa"
                                                             }, void 0, false, {
                                                                 fileName: "[project]/components/pages/DashboardPage.tsx",
-                                                                lineNumber: 415,
+                                                                lineNumber: 427,
                                                                 columnNumber: 21
                                                             }, this),
                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$recharts$2f$es6$2f$cartesian$2f$YAxis$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["YAxis"], {
@@ -10392,7 +10834,7 @@ function DashboardPage() {
                                                                 }
                                                             }, void 0, false, {
                                                                 fileName: "[project]/components/pages/DashboardPage.tsx",
-                                                                lineNumber: 416,
+                                                                lineNumber: 428,
                                                                 columnNumber: 21
                                                             }, this),
                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$recharts$2f$es6$2f$component$2f$Tooltip$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Tooltip"], {
@@ -10405,7 +10847,7 @@ function DashboardPage() {
                                                                 }
                                                             }, void 0, false, {
                                                                 fileName: "[project]/components/pages/DashboardPage.tsx",
-                                                                lineNumber: 417,
+                                                                lineNumber: 429,
                                                                 columnNumber: 21
                                                             }, this),
                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$recharts$2f$es6$2f$cartesian$2f$Line$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Line"], {
@@ -10416,30 +10858,30 @@ function DashboardPage() {
                                                                 dot: false
                                                             }, void 0, false, {
                                                                 fileName: "[project]/components/pages/DashboardPage.tsx",
-                                                                lineNumber: 421,
+                                                                lineNumber: 433,
                                                                 columnNumber: 21
                                                             }, this)
                                                         ]
                                                     }, void 0, true, {
                                                         fileName: "[project]/components/pages/DashboardPage.tsx",
-                                                        lineNumber: 413,
+                                                        lineNumber: 425,
                                                         columnNumber: 19
                                                     }, this)
                                                 }, void 0, false, {
                                                     fileName: "[project]/components/pages/DashboardPage.tsx",
-                                                    lineNumber: 412,
+                                                    lineNumber: 424,
                                                     columnNumber: 17
                                                 }, this)
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/components/pages/DashboardPage.tsx",
-                                            lineNumber: 410,
+                                            lineNumber: 422,
                                             columnNumber: 15
                                         }, this)
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/components/pages/DashboardPage.tsx",
-                                    lineNumber: 392,
+                                    lineNumber: 404,
                                     columnNumber: 13
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -10453,7 +10895,7 @@ function DashboardPage() {
                                                     children: "Sampling Log Prob Diff (Mean)"
                                                 }, void 0, false, {
                                                     fileName: "[project]/components/pages/DashboardPage.tsx",
-                                                    lineNumber: 430,
+                                                    lineNumber: 442,
                                                     columnNumber: 17
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$recharts$2f$es6$2f$component$2f$ResponsiveContainer$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["ResponsiveContainer"], {
@@ -10467,7 +10909,7 @@ function DashboardPage() {
                                                                 stroke: "#3f3f46"
                                                             }, void 0, false, {
                                                                 fileName: "[project]/components/pages/DashboardPage.tsx",
-                                                                lineNumber: 433,
+                                                                lineNumber: 445,
                                                                 columnNumber: 21
                                                             }, this),
                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$recharts$2f$es6$2f$cartesian$2f$XAxis$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["XAxis"], {
@@ -10475,7 +10917,7 @@ function DashboardPage() {
                                                                 stroke: "#a1a1aa"
                                                             }, void 0, false, {
                                                                 fileName: "[project]/components/pages/DashboardPage.tsx",
-                                                                lineNumber: 434,
+                                                                lineNumber: 446,
                                                                 columnNumber: 21
                                                             }, this),
                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$recharts$2f$es6$2f$cartesian$2f$YAxis$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["YAxis"], {
@@ -10491,7 +10933,7 @@ function DashboardPage() {
                                                                 }
                                                             }, void 0, false, {
                                                                 fileName: "[project]/components/pages/DashboardPage.tsx",
-                                                                lineNumber: 435,
+                                                                lineNumber: 447,
                                                                 columnNumber: 21
                                                             }, this),
                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$recharts$2f$es6$2f$component$2f$Tooltip$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Tooltip"], {
@@ -10504,7 +10946,7 @@ function DashboardPage() {
                                                                 }
                                                             }, void 0, false, {
                                                                 fileName: "[project]/components/pages/DashboardPage.tsx",
-                                                                lineNumber: 436,
+                                                                lineNumber: 448,
                                                                 columnNumber: 21
                                                             }, this),
                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$recharts$2f$es6$2f$cartesian$2f$Line$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Line"], {
@@ -10515,41 +10957,41 @@ function DashboardPage() {
                                                                 dot: false
                                                             }, void 0, false, {
                                                                 fileName: "[project]/components/pages/DashboardPage.tsx",
-                                                                lineNumber: 440,
+                                                                lineNumber: 452,
                                                                 columnNumber: 21
                                                             }, this)
                                                         ]
                                                     }, void 0, true, {
                                                         fileName: "[project]/components/pages/DashboardPage.tsx",
-                                                        lineNumber: 432,
+                                                        lineNumber: 444,
                                                         columnNumber: 19
                                                     }, this)
                                                 }, void 0, false, {
                                                     fileName: "[project]/components/pages/DashboardPage.tsx",
-                                                    lineNumber: 431,
+                                                    lineNumber: 443,
                                                     columnNumber: 17
                                                 }, this)
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/components/pages/DashboardPage.tsx",
-                                            lineNumber: 429,
+                                            lineNumber: 441,
                                             columnNumber: 15
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {}, void 0, false, {
                                             fileName: "[project]/components/pages/DashboardPage.tsx",
-                                            lineNumber: 446,
+                                            lineNumber: 458,
                                             columnNumber: 15
                                         }, this)
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/components/pages/DashboardPage.tsx",
-                                    lineNumber: 428,
+                                    lineNumber: 440,
                                     columnNumber: 13
                                 }, this)
                             ]
                         }, void 0, true, {
                             fileName: "[project]/components/pages/DashboardPage.tsx",
-                            lineNumber: 328,
+                            lineNumber: 363,
                             columnNumber: 11
                         }, this),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -10563,7 +11005,7 @@ function DashboardPage() {
                                             children: "Accuracy Metrics"
                                         }, void 0, false, {
                                             fileName: "[project]/components/pages/DashboardPage.tsx",
-                                            lineNumber: 454,
+                                            lineNumber: 466,
                                             columnNumber: 15
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$recharts$2f$es6$2f$component$2f$ResponsiveContainer$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["ResponsiveContainer"], {
@@ -10583,7 +11025,7 @@ function DashboardPage() {
                                                         stroke: "#3f3f46"
                                                     }, void 0, false, {
                                                         fileName: "[project]/components/pages/DashboardPage.tsx",
-                                                        lineNumber: 457,
+                                                        lineNumber: 469,
                                                         columnNumber: 19
                                                     }, this),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$recharts$2f$es6$2f$cartesian$2f$XAxis$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["XAxis"], {
@@ -10591,7 +11033,7 @@ function DashboardPage() {
                                                         stroke: "#a1a1aa"
                                                     }, void 0, false, {
                                                         fileName: "[project]/components/pages/DashboardPage.tsx",
-                                                        lineNumber: 458,
+                                                        lineNumber: 470,
                                                         columnNumber: 19
                                                     }, this),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$recharts$2f$es6$2f$cartesian$2f$YAxis$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["YAxis"], {
@@ -10602,7 +11044,7 @@ function DashboardPage() {
                                                         ]
                                                     }, void 0, false, {
                                                         fileName: "[project]/components/pages/DashboardPage.tsx",
-                                                        lineNumber: 459,
+                                                        lineNumber: 471,
                                                         columnNumber: 19
                                                     }, this),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$recharts$2f$es6$2f$component$2f$Tooltip$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Tooltip"], {
@@ -10615,7 +11057,7 @@ function DashboardPage() {
                                                         }
                                                     }, void 0, false, {
                                                         fileName: "[project]/components/pages/DashboardPage.tsx",
-                                                        lineNumber: 460,
+                                                        lineNumber: 472,
                                                         columnNumber: 19
                                                     }, this),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$recharts$2f$es6$2f$component$2f$Legend$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Legend"], {
@@ -10626,7 +11068,7 @@ function DashboardPage() {
                                                         }
                                                     }, void 0, false, {
                                                         fileName: "[project]/components/pages/DashboardPage.tsx",
-                                                        lineNumber: 464,
+                                                        lineNumber: 476,
                                                         columnNumber: 19
                                                     }, this),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$recharts$2f$es6$2f$cartesian$2f$Bar$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Bar"], {
@@ -10634,7 +11076,7 @@ function DashboardPage() {
                                                         fill: "#3b82f6"
                                                     }, void 0, false, {
                                                         fileName: "[project]/components/pages/DashboardPage.tsx",
-                                                        lineNumber: 469,
+                                                        lineNumber: 481,
                                                         columnNumber: 19
                                                     }, this),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$recharts$2f$es6$2f$cartesian$2f$Bar$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Bar"], {
@@ -10642,24 +11084,24 @@ function DashboardPage() {
                                                         fill: "#10b981"
                                                     }, void 0, false, {
                                                         fileName: "[project]/components/pages/DashboardPage.tsx",
-                                                        lineNumber: 470,
+                                                        lineNumber: 482,
                                                         columnNumber: 19
                                                     }, this)
                                                 ]
                                             }, void 0, true, {
                                                 fileName: "[project]/components/pages/DashboardPage.tsx",
-                                                lineNumber: 456,
+                                                lineNumber: 468,
                                                 columnNumber: 17
                                             }, this)
                                         }, void 0, false, {
                                             fileName: "[project]/components/pages/DashboardPage.tsx",
-                                            lineNumber: 455,
+                                            lineNumber: 467,
                                             columnNumber: 15
                                         }, this)
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/components/pages/DashboardPage.tsx",
-                                    lineNumber: 453,
+                                    lineNumber: 465,
                                     columnNumber: 13
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Card"], {
@@ -10670,7 +11112,7 @@ function DashboardPage() {
                                             children: "Latency Comparison"
                                         }, void 0, false, {
                                             fileName: "[project]/components/pages/DashboardPage.tsx",
-                                            lineNumber: 477,
+                                            lineNumber: 489,
                                             columnNumber: 15
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$recharts$2f$es6$2f$component$2f$ResponsiveContainer$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["ResponsiveContainer"], {
@@ -10690,7 +11132,7 @@ function DashboardPage() {
                                                         stroke: "#3f3f46"
                                                     }, void 0, false, {
                                                         fileName: "[project]/components/pages/DashboardPage.tsx",
-                                                        lineNumber: 480,
+                                                        lineNumber: 492,
                                                         columnNumber: 19
                                                     }, this),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$recharts$2f$es6$2f$cartesian$2f$XAxis$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["XAxis"], {
@@ -10698,14 +11140,14 @@ function DashboardPage() {
                                                         stroke: "#a1a1aa"
                                                     }, void 0, false, {
                                                         fileName: "[project]/components/pages/DashboardPage.tsx",
-                                                        lineNumber: 481,
+                                                        lineNumber: 493,
                                                         columnNumber: 19
                                                     }, this),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$recharts$2f$es6$2f$cartesian$2f$YAxis$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["YAxis"], {
                                                         stroke: "#a1a1aa"
                                                     }, void 0, false, {
                                                         fileName: "[project]/components/pages/DashboardPage.tsx",
-                                                        lineNumber: 482,
+                                                        lineNumber: 494,
                                                         columnNumber: 19
                                                     }, this),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$recharts$2f$es6$2f$component$2f$Tooltip$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Tooltip"], {
@@ -10718,7 +11160,7 @@ function DashboardPage() {
                                                         }
                                                     }, void 0, false, {
                                                         fileName: "[project]/components/pages/DashboardPage.tsx",
-                                                        lineNumber: 483,
+                                                        lineNumber: 495,
                                                         columnNumber: 19
                                                     }, this),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$recharts$2f$es6$2f$component$2f$Legend$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Legend"], {
@@ -10729,7 +11171,7 @@ function DashboardPage() {
                                                         }
                                                     }, void 0, false, {
                                                         fileName: "[project]/components/pages/DashboardPage.tsx",
-                                                        lineNumber: 487,
+                                                        lineNumber: 499,
                                                         columnNumber: 19
                                                     }, this),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$recharts$2f$es6$2f$cartesian$2f$Line$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Line"], {
@@ -10739,7 +11181,7 @@ function DashboardPage() {
                                                         strokeWidth: 2
                                                     }, void 0, false, {
                                                         fileName: "[project]/components/pages/DashboardPage.tsx",
-                                                        lineNumber: 492,
+                                                        lineNumber: 504,
                                                         columnNumber: 19
                                                     }, this),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$recharts$2f$es6$2f$cartesian$2f$Line$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Line"], {
@@ -10749,30 +11191,30 @@ function DashboardPage() {
                                                         strokeWidth: 2
                                                     }, void 0, false, {
                                                         fileName: "[project]/components/pages/DashboardPage.tsx",
-                                                        lineNumber: 493,
+                                                        lineNumber: 505,
                                                         columnNumber: 19
                                                     }, this)
                                                 ]
                                             }, void 0, true, {
                                                 fileName: "[project]/components/pages/DashboardPage.tsx",
-                                                lineNumber: 479,
+                                                lineNumber: 491,
                                                 columnNumber: 17
                                             }, this)
                                         }, void 0, false, {
                                             fileName: "[project]/components/pages/DashboardPage.tsx",
-                                            lineNumber: 478,
+                                            lineNumber: 490,
                                             columnNumber: 15
                                         }, this)
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/components/pages/DashboardPage.tsx",
-                                    lineNumber: 476,
+                                    lineNumber: 488,
                                     columnNumber: 13
                                 }, this)
                             ]
                         }, void 0, true, {
                             fileName: "[project]/components/pages/DashboardPage.tsx",
-                            lineNumber: 451,
+                            lineNumber: 463,
                             columnNumber: 11
                         }, this),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Card"], {
@@ -10783,7 +11225,7 @@ function DashboardPage() {
                                     children: "Sample Evaluation Traces"
                                 }, void 0, false, {
                                     fileName: "[project]/components/pages/DashboardPage.tsx",
-                                    lineNumber: 501,
+                                    lineNumber: 513,
                                     columnNumber: 13
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$table$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Table"], {
@@ -10796,7 +11238,7 @@ function DashboardPage() {
                                                         children: "Intent"
                                                     }, void 0, false, {
                                                         fileName: "[project]/components/pages/DashboardPage.tsx",
-                                                        lineNumber: 505,
+                                                        lineNumber: 517,
                                                         columnNumber: 19
                                                     }, this),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$table$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["TableHead"], {
@@ -10804,14 +11246,14 @@ function DashboardPage() {
                                                         children: "User Input"
                                                     }, void 0, false, {
                                                         fileName: "[project]/components/pages/DashboardPage.tsx",
-                                                        lineNumber: 506,
+                                                        lineNumber: 518,
                                                         columnNumber: 19
                                                     }, this),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$table$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["TableHead"], {
                                                         children: "GPT-4o Response"
                                                     }, void 0, false, {
                                                         fileName: "[project]/components/pages/DashboardPage.tsx",
-                                                        lineNumber: 507,
+                                                        lineNumber: 519,
                                                         columnNumber: 19
                                                     }, this),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$table$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["TableHead"], {
@@ -10821,7 +11263,7 @@ function DashboardPage() {
                                                         ]
                                                     }, void 0, true, {
                                                         fileName: "[project]/components/pages/DashboardPage.tsx",
-                                                        lineNumber: 508,
+                                                        lineNumber: 520,
                                                         columnNumber: 19
                                                     }, this),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$table$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["TableHead"], {
@@ -10829,18 +11271,18 @@ function DashboardPage() {
                                                         children: "Result"
                                                     }, void 0, false, {
                                                         fileName: "[project]/components/pages/DashboardPage.tsx",
-                                                        lineNumber: 509,
+                                                        lineNumber: 521,
                                                         columnNumber: 19
                                                     }, this)
                                                 ]
                                             }, void 0, true, {
                                                 fileName: "[project]/components/pages/DashboardPage.tsx",
-                                                lineNumber: 504,
+                                                lineNumber: 516,
                                                 columnNumber: 17
                                             }, this)
                                         }, void 0, false, {
                                             fileName: "[project]/components/pages/DashboardPage.tsx",
-                                            lineNumber: 503,
+                                            lineNumber: 515,
                                             columnNumber: 15
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$table$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["TableBody"], {
@@ -10853,12 +11295,12 @@ function DashboardPage() {
                                                                 children: trace.intent
                                                             }, void 0, false, {
                                                                 fileName: "[project]/components/pages/DashboardPage.tsx",
-                                                                lineNumber: 516,
+                                                                lineNumber: 528,
                                                                 columnNumber: 23
                                                             }, this)
                                                         }, void 0, false, {
                                                             fileName: "[project]/components/pages/DashboardPage.tsx",
-                                                            lineNumber: 515,
+                                                            lineNumber: 527,
                                                             columnNumber: 21
                                                         }, this),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$table$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["TableCell"], {
@@ -10866,7 +11308,7 @@ function DashboardPage() {
                                                             children: trace.input
                                                         }, void 0, false, {
                                                             fileName: "[project]/components/pages/DashboardPage.tsx",
-                                                            lineNumber: 520,
+                                                            lineNumber: 532,
                                                             columnNumber: 21
                                                         }, this),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$table$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["TableCell"], {
@@ -10874,7 +11316,7 @@ function DashboardPage() {
                                                             children: trace.baseline
                                                         }, void 0, false, {
                                                             fileName: "[project]/components/pages/DashboardPage.tsx",
-                                                            lineNumber: 521,
+                                                            lineNumber: 533,
                                                             columnNumber: 21
                                                         }, this),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$table$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["TableCell"], {
@@ -10882,7 +11324,7 @@ function DashboardPage() {
                                                             children: trace.trained
                                                         }, void 0, false, {
                                                             fileName: "[project]/components/pages/DashboardPage.tsx",
-                                                            lineNumber: 522,
+                                                            lineNumber: 534,
                                                             columnNumber: 21
                                                         }, this),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$table$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["TableCell"], {
@@ -10891,35 +11333,35 @@ function DashboardPage() {
                                                                 children: trace.result
                                                             }, void 0, false, {
                                                                 fileName: "[project]/components/pages/DashboardPage.tsx",
-                                                                lineNumber: 524,
+                                                                lineNumber: 536,
                                                                 columnNumber: 23
                                                             }, this)
                                                         }, void 0, false, {
                                                             fileName: "[project]/components/pages/DashboardPage.tsx",
-                                                            lineNumber: 523,
+                                                            lineNumber: 535,
                                                             columnNumber: 21
                                                         }, this)
                                                     ]
                                                 }, trace.id, true, {
                                                     fileName: "[project]/components/pages/DashboardPage.tsx",
-                                                    lineNumber: 514,
+                                                    lineNumber: 526,
                                                     columnNumber: 19
                                                 }, this))
                                         }, void 0, false, {
                                             fileName: "[project]/components/pages/DashboardPage.tsx",
-                                            lineNumber: 512,
+                                            lineNumber: 524,
                                             columnNumber: 15
                                         }, this)
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/components/pages/DashboardPage.tsx",
-                                    lineNumber: 502,
+                                    lineNumber: 514,
                                     columnNumber: 13
                                 }, this)
                             ]
                         }, void 0, true, {
                             fileName: "[project]/components/pages/DashboardPage.tsx",
-                            lineNumber: 500,
+                            lineNumber: 512,
                             columnNumber: 11
                         }, this),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Card"], {
@@ -10930,7 +11372,7 @@ function DashboardPage() {
                                     children: "Model Comparison Summary"
                                 }, void 0, false, {
                                     fileName: "[project]/components/pages/DashboardPage.tsx",
-                                    lineNumber: 536,
+                                    lineNumber: 548,
                                     columnNumber: 13
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$table$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Table"], {
@@ -10942,39 +11384,39 @@ function DashboardPage() {
                                                         children: "Model"
                                                     }, void 0, false, {
                                                         fileName: "[project]/components/pages/DashboardPage.tsx",
-                                                        lineNumber: 540,
+                                                        lineNumber: 552,
                                                         columnNumber: 19
                                                     }, this),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$table$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["TableHead"], {
                                                         children: "Intent"
                                                     }, void 0, false, {
                                                         fileName: "[project]/components/pages/DashboardPage.tsx",
-                                                        lineNumber: 541,
+                                                        lineNumber: 553,
                                                         columnNumber: 19
                                                     }, this),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$table$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["TableHead"], {
                                                         children: "p50 (ms)"
                                                     }, void 0, false, {
                                                         fileName: "[project]/components/pages/DashboardPage.tsx",
-                                                        lineNumber: 542,
+                                                        lineNumber: 554,
                                                         columnNumber: 19
                                                     }, this),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$table$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["TableHead"], {
                                                         children: "Cost / 1k"
                                                     }, void 0, false, {
                                                         fileName: "[project]/components/pages/DashboardPage.tsx",
-                                                        lineNumber: 543,
+                                                        lineNumber: 555,
                                                         columnNumber: 19
                                                     }, this)
                                                 ]
                                             }, void 0, true, {
                                                 fileName: "[project]/components/pages/DashboardPage.tsx",
-                                                lineNumber: 539,
+                                                lineNumber: 551,
                                                 columnNumber: 17
                                             }, this)
                                         }, void 0, false, {
                                             fileName: "[project]/components/pages/DashboardPage.tsx",
-                                            lineNumber: 538,
+                                            lineNumber: 550,
                                             columnNumber: 15
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$table$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["TableBody"], {
@@ -10986,7 +11428,7 @@ function DashboardPage() {
                                                             children: "GPT-4o"
                                                         }, void 0, false, {
                                                             fileName: "[project]/components/pages/DashboardPage.tsx",
-                                                            lineNumber: 548,
+                                                            lineNumber: 560,
                                                             columnNumber: 19
                                                         }, this),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$table$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["TableCell"], {
@@ -10996,7 +11438,7 @@ function DashboardPage() {
                                                             ]
                                                         }, void 0, true, {
                                                             fileName: "[project]/components/pages/DashboardPage.tsx",
-                                                            lineNumber: 549,
+                                                            lineNumber: 561,
                                                             columnNumber: 19
                                                         }, this),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$table$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["TableCell"], {
@@ -11006,7 +11448,7 @@ function DashboardPage() {
                                                             ]
                                                         }, void 0, true, {
                                                             fileName: "[project]/components/pages/DashboardPage.tsx",
-                                                            lineNumber: 550,
+                                                            lineNumber: 562,
                                                             columnNumber: 19
                                                         }, this),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$table$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["TableCell"], {
@@ -11016,13 +11458,13 @@ function DashboardPage() {
                                                             ]
                                                         }, void 0, true, {
                                                             fileName: "[project]/components/pages/DashboardPage.tsx",
-                                                            lineNumber: 551,
+                                                            lineNumber: 563,
                                                             columnNumber: 19
                                                         }, this)
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/components/pages/DashboardPage.tsx",
-                                                    lineNumber: 547,
+                                                    lineNumber: 559,
                                                     columnNumber: 17
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$table$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["TableRow"], {
@@ -11035,7 +11477,7 @@ function DashboardPage() {
                                                             ]
                                                         }, void 0, true, {
                                                             fileName: "[project]/components/pages/DashboardPage.tsx",
-                                                            lineNumber: 554,
+                                                            lineNumber: 566,
                                                             columnNumber: 19
                                                         }, this),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$table$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["TableCell"], {
@@ -11046,7 +11488,7 @@ function DashboardPage() {
                                                             ]
                                                         }, void 0, true, {
                                                             fileName: "[project]/components/pages/DashboardPage.tsx",
-                                                            lineNumber: 555,
+                                                            lineNumber: 567,
                                                             columnNumber: 19
                                                         }, this),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$table$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["TableCell"], {
@@ -11057,7 +11499,7 @@ function DashboardPage() {
                                                             ]
                                                         }, void 0, true, {
                                                             fileName: "[project]/components/pages/DashboardPage.tsx",
-                                                            lineNumber: 556,
+                                                            lineNumber: 568,
                                                             columnNumber: 19
                                                         }, this),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$table$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["TableCell"], {
@@ -11068,31 +11510,31 @@ function DashboardPage() {
                                                             ]
                                                         }, void 0, true, {
                                                             fileName: "[project]/components/pages/DashboardPage.tsx",
-                                                            lineNumber: 557,
+                                                            lineNumber: 569,
                                                             columnNumber: 19
                                                         }, this)
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/components/pages/DashboardPage.tsx",
-                                                    lineNumber: 553,
+                                                    lineNumber: 565,
                                                     columnNumber: 17
                                                 }, this)
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/components/pages/DashboardPage.tsx",
-                                            lineNumber: 546,
+                                            lineNumber: 558,
                                             columnNumber: 15
                                         }, this)
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/components/pages/DashboardPage.tsx",
-                                    lineNumber: 537,
+                                    lineNumber: 549,
                                     columnNumber: 13
                                 }, this)
                             ]
                         }, void 0, true, {
                             fileName: "[project]/components/pages/DashboardPage.tsx",
-                            lineNumber: 535,
+                            lineNumber: 547,
                             columnNumber: 11
                         }, this)
                     ]

@@ -242,7 +242,7 @@ export const useStore = create<StoreState>((set) => ({
   // Metrics
   metrics: {
     gpt4o: {
-      intent: 95,
+      intent: 90,
       policy: 95,
       system: 93,
       p50: 350,

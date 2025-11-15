@@ -1,7 +1,15 @@
-[00:00:01.100] Server  LOG      ✓ Ready in 991ms
-[00:00:04.352] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
-[00:00:04.536] Browser WARN    Image with src "/workato-dark.webp" was detected as the Largest Contentful Paint (LCP). Please add the `loading="eager"` property if this image is above the fold.
+[00:00:00.407] Server  LOG      ✓ Ready in 287ms
+[00:00:02.513] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+[00:00:08.081] Browser WARN    Image with src "/workato-dark.webp" has either width or height modified, but not the other. If you use CSS to change the size of your image, also include the styles 'width: "auto"' or 'height: "auto"' to maintain the aspect ratio.
+[00:00:08.081] Browser WARN    Image with src "/aws-color.png" has either width or height modified, but not the other. If you use CSS to change the size of your image, also include the styles 'width: "auto"' or 'height: "auto"' to maintain the aspect ratio.
+[00:00:08.081] Browser WARN    Image with src "/workato-dark.webp" was detected as the Largest Contentful Paint (LCP). Please add the `loading="eager"` property if this image is above the fold.
 Read more: https://nextjs.org/docs/app/api-reference/components/image#loading
-[00:00:04.536] Browser WARN    Image with src "/workato-dark.webp" has either width or height modified, but not the other. If you use CSS to change the size of your image, also include the styles 'width: "auto"' or 'height: "auto"' to maintain the aspect ratio.
-[00:00:04.536] Browser WARN    Image with src "/aws-color.png" has either width or height modified, but not the other. If you use CSS to change the size of your image, also include the styles 'width: "auto"' or 'height: "auto"' to maintain the aspect ratio.
-[00:00:05.179] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+[00:14:09.740] Server  LOG      ✓ Compiled in 22ms
+[00:14:22.559] Server  LOG      ✓ Compiled in 24ms
+[00:14:56.683] Server  LOG      ✓ Compiled in 25ms
+[00:15:14.432] Server  LOG      ✓ Compiled in 13ms
+[00:26:52.883] Server  LOG      ✓ Compiled in 24ms
+[00:27:17.756] Server  LOG      ✓ Compiled in 15ms
+[00:27:31.905] Server  LOG      ✓ Compiled in 14ms
+[01:22:48.329] Server  LOG      ✓ Compiled in 15ms
+[01:36:44.665] Server  LOG      ✓ Compiled in 14ms
