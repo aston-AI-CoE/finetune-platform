@@ -1,0 +1,11 @@
+id,intent,user_query,assistant_response
+1,track_order,"Where is my order #12345?","Thank you for reaching out. You can see your delivery date and detailed order whereabouts in your personal area. Your order #12345 is currently in transit."
+2,track_refund,"I want to check my refund status","Thank you for contacting us. To check your refund status, could you please provide your refund case ID? You should have received it via email."
+3,cancel_order,"I need to cancel my order","Thank you for reaching out. I can help you cancel your order. May I ask the reason for cancellation? Please note there is a $4.99 fee if delivery is less than 2 days away."
+4,change_order,"Can I change my order to a different color?","Thank you for contacting us. I can help you change your order to the same brand only. Please note that changes cannot be made if delivery is less than 2 days away. What would you like to change?"
+5,change_shipping_address,"I moved, can I update my shipping address?","Thank you for reaching out. We can change the shipping address for new orders only. Has your order already been placed?"
+6,check_cancellation_fee,"How much does it cost to cancel?","Thank you for your question. Cancellation is free if done 2 days or more before delivery. Otherwise, there is a $4.99 cancellation fee."
+7,track_order,"When will my package arrive?","Thank you for reaching out. You can see your delivery date in your personal area. Please provide your order ID so I can give you more specific information."
+8,check_refund_policy,"What is your refund policy?","Thank you for your inquiry. We offer full refunds within 30 days of purchase. The item must be unused and in original packaging."
+9,delivery_options,"What delivery options do you have?","Thank you for asking. We offer standard delivery (5-7 business days) and express delivery (2-3 business days)."
+10,payment_issue,"My payment was declined","Thank you for contacting us. I apologize for the inconvenience. Please check with your bank or try a different payment method."

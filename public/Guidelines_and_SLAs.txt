@@ -1,0 +1,43 @@
+AI Accuracy Performance Standards and Intent Classification Guidelines [ENG]
+Article 1. Purpose
+This clause defines the minimum performance standards for AI response quality. It aims to ensure that vendor-provided AI models accurately understand Coupang’s customer service standards and conversational context, effectively detecting key intents, requests, and keywords to enhance service quality.
+Article 2. Evaluation Items and Performance Standards
+ 1) Key Intent Detection & Classification Accuracy
+- Definition: The proportion of customer utterances where the intent is accurately detected and classified according to Coupang’s standards. ※Reference 1_Intent Classification Table
+- SLA: 95% or higher
+- Evaluation Method: Monthly sampling evaluation (≥500 cases), comparison based on Coupang’s intent definitions and answer set, accuracy includes false positives/negatives
+- Formula: (Number of correctly detected intents / Total evaluated utterances) × 100
+ 1) Request Detection & Classification Accuracy
+- Definition: The proportion of customer requests accurately detected and classified according to Coupang’s 8 request types. ※Reference 2_Request Classification Table
+- SLA: 90% or higher
+- Evaluation Method: Includes complex utterances, accuracy measured based on priority and utterance timing
+- Formula: (Number of correctly detected and classified requests / Total evaluated utterances) × 100
+ 1) Keyword Detection Accuracy
+- Definition: The proportion of core words (Intent_tag or Critical Keyword) accurately identified from customer utterances. ※Reference 3_Keyword Classification Table
+- SLA: 95% or higher
+- Evaluation Method: Evaluation based on inclusion of key keywords such as product info, damage type, request, critical situations; based on Coupang’s Critical Keyword list; accuracy includes omissions/false detections
+- Formula: (Number of correctly detected keywords / Total evaluated utterances) × 100
+ 1) Irrelevant Utterance Filtering Accuracy
+- Definition: The proportion of utterances irrelevant to intent accurately identified and excluded from response targets (e.g., simple requests, feedback, reactions to agent questions, non-sentential utterances, repeated intents, customer/product info). ※Reference 4_Irrelevant Utterance Examples
+- SLA: 90% or higher
+- Evaluation Method: Target utterance types: 1) Simple request (no intent), 2) Simple feedback, 3) Reaction to agent utterance, 4) Non-sentential utterance, 5) Repeated/duplicate intent, 6) Customer/product info; accuracy measured based on Coupang’s irrelevant utterance definitions
+- Formula: (Number of correctly filtered irrelevant utterances / Total irrelevant utterance evaluations) × 100
+1. Intent Classification Guidelines
+2) Intent classification must not rely solely on keyword matching. It should consider the full context and the hierarchical structure of intents (depth1~4).
+Failure Case 1: Product Issue vs. Freshness Dissatisfaction
+- Customer utterance: “The orange arrived bruised.”
+- Correct intent: Product Issue > Product Defect > Physical Defect
+- AI response: Product Dissatisfaction > Not as Expected > Freshness Dissatisfaction
+- Failure reason: The customer clearly mentions a physical defect, which is Coupang’s responsibility. The AI classified it as dissatisfaction due to unmet expectations, which is the customer’s responsibility. Physical defects must be classified as Product Issue.
+1) When multiple intents are detected, AI must identify the key intent based on priority (P1 > P2).
+Failure Case 2: Multi-Intent Priority Error
+- Customer utterance: “It arrived all broken and I want a refund…”
+- Correct intent: Product Damage or Physical/Functional Defect
+- AI response: Disposal Method
+- Failure reason: The core utterance is about damage and refund. The AI focused on a secondary topic. When multiple intents are detected, the key intent must be prioritized. In this case, Product Damage is P1, Disposal Method is P2.
+1) Intent and request must be distinguished. Intent should reflect the root cause of the customer’s request.
+Failure Case 3: Product Not as Expected + Exchange Request
+- Customer utterance: “It’s not what I expected so I tried to exchange it but it says the period has expired.”
+- Correct intent: Product Dissatisfaction > Not as Expected > Size Dissatisfaction (P1)
+- AI response: Other, Exchange > Seller Exchange Intent > Seller Exchange Refusal (P2)
+- Failure reason: The customer wants an exchange due to dissatisfaction. The AI focused on the exchange method. The intent must reflect the root cause of the request.

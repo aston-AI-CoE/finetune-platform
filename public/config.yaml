@@ -1,0 +1,61 @@
+model:
+  name: Mistral Small 24B
+  architecture: transformer
+  parameters: 24B
+  context_length: 32768
+
+training:
+  strategy: RL
+  algorithms:
+    - PPO
+    - DPO
+    - GRPO
+
+  dataset:
+    name: customer-support-training
+    size: 5000
+    validation_split: 0.1
+
+  hyperparameters:
+    learning_rate: 5e-6
+    batch_size: 32
+    num_epochs: 3
+    warmup_steps: 100
+    max_steps: 1000
+    gradient_accumulation_steps: 4
+
+  rlef:
+    enabled: true
+    regex: "<intent>(.*?)</intent>"
+
+  rlaif:
+    enabled: true
+    judge_model: Llama 3.3 70B
+    num_guidelines: 3
+    guidelines:
+      - id: track_order_1
+        text: "If intent = track_order, inform customer they can see delivery date in personal area."
+      - id: track_order_2
+        text: "If intent = track_order, inform customer they can see detailed order whereabouts in personal area."
+      - id: track_refund
+        text: "If intent = track_refund, ask for refund case ID (if not provided)."
+
+evaluation:
+  metrics:
+    - intent_accuracy
+    - policy_adherence
+    - system_quality
+
+  benchmarks:
+    baseline_model: GPT-4o
+    target_metrics:
+      intent_accuracy: 95
+      policy_adherence: 95
+      system_quality: 90
+
+results:
+  intent_accuracy: 100
+  policy_adherence: 97
+  system_quality: 97
+  latency_p50_ms: 180
+  cost_per_1k_requests: 0.10

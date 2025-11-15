@@ -1,0 +1,7 @@
+[25:38:10.172] Server  ERROR    ⨯ Error: Cannot find module 'next/dist/client/components/builtin/global-not-found'
+Require stack:
+- /Users/astonlee/Documents/Workplace/Finetune-Platform/finetune-platform/node_modules/next/dist/server/dev/on-demand-entry-handler.js
+- /Users/astonlee/Documents/Workplace/Finetune-Platform/finetune-platform/node_modules/next/dist/server/dev/hot-reloader-turbopack.js
+- /Users/astonlee/Documents/Workplace/Finetune-Platform/finetune-platform/node_modules/next/dist/server/lib/router-utils/setup-dev-bundler.js
+- /Users/astonlee/Documents/Workplace/Finetune-Platform/finetune-platform/node_modules/next/dist/server/lib/router-server.js
+- /Users/astonlee/Documents/Workplace/Finetune-Platform/finetune-platform/node_modules/next/dist/server/lib/start-server.js

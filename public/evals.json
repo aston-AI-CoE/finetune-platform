@@ -1,0 +1,100 @@
+{
+  "evaluation_id": "eval_20250113_143000",
+  "timestamp": "2025-01-13T14:30:00Z",
+  "models": {
+    "baseline": {
+      "name": "GPT-4o",
+      "metrics": {
+        "intent_accuracy": 92,
+        "policy_adherence": 95,
+        "system_quality": 87,
+        "latency_p50_ms": 350,
+        "latency_p95_ms": 525,
+        "cost_per_1k_requests": 0.60
+      }
+    },
+    "trained": {
+      "name": "Mistral Small 24B (GRPO RLEF RLAIF)",
+      "metrics": {
+        "intent_accuracy": 100,
+        "policy_adherence": 97,
+        "system_quality": 97,
+        "latency_p50_ms": 180,
+        "latency_p95_ms": 270,
+        "cost_per_1k_requests": 0.10
+      }
+    }
+  },
+  "improvements": {
+    "intent_accuracy": "+8.7%",
+    "policy_adherence": "+2.1%",
+    "system_quality": "+11.5%",
+    "latency_p50_ms": "-48.6%",
+    "cost_per_1k_requests": "-83.3%"
+  },
+  "sample_traces": [
+    {
+      "id": 1,
+      "intent": "track_order",
+      "user_input": "Where is my order?",
+      "baseline_response": "Your order is on the way.",
+      "trained_response": "Thank you for reaching out. You can see your delivery date and detailed order whereabouts in your personal area. May I have your order ID?",
+      "evaluation": {
+        "baseline_score": 0.6,
+        "trained_score": 1.0,
+        "improvement": "improved",
+        "reasoning": "Trained model follows guidelines by directing user to personal area and requests order ID"
+      }
+    },
+    {
+      "id": 2,
+      "intent": "track_refund",
+      "user_input": "I want to check my refund.",
+      "baseline_response": "Your refund is being processed.",
+      "trained_response": "Thank you for contacting us. To check your refund status, could you please provide your refund case ID? You should have received it via email.",
+      "evaluation": {
+        "baseline_score": 0.5,
+        "trained_score": 1.0,
+        "improvement": "improved",
+        "reasoning": "Trained model correctly asks for refund case ID as per guidelines"
+      }
+    },
+    {
+      "id": 3,
+      "intent": "cancel_order",
+      "user_input": "Cancel my order please",
+      "baseline_response": "Your order has been cancelled.",
+      "trained_response": "Thank you for reaching out. I can help you cancel your order. May I ask the reason for cancellation? Please note there is a $4.99 fee if delivery is less than 2 days away.",
+      "evaluation": {
+        "baseline_score": 0.4,
+        "trained_score": 1.0,
+        "improvement": "improved",
+        "reasoning": "Trained model mentions cancellation fee policy and asks for reason"
+      }
+    },
+    {
+      "id": 4,
+      "intent": "change_order",
+      "user_input": "I want to change my order",
+      "baseline_response": "What would you like to change?",
+      "trained_response": "Thank you for contacting us. I can help you change your order to the same brand only. Please note that changes cannot be made if delivery is less than 2 days away. What would you like to change?",
+      "evaluation": {
+        "baseline_score": 0.5,
+        "trained_score": 1.0,
+        "improvement": "improved",
+        "reasoning": "Trained model follows policy guidelines about same-brand changes and delivery restrictions"
+      }
+    }
+  ],
+  "training_config": {
+    "dataset": "customer-support-training",
+    "dataset_size": 5000,
+    "model": "Mistral Small 24B",
+    "strategy": "RL",
+    "algorithms": ["PPO", "DPO", "GRPO"],
+    "judge_model": "Llama 3.3 70B",
+    "num_guidelines": 3,
+    "training_steps": 1000,
+    "training_time_minutes": 45
+  }
+}

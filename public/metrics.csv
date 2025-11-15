@@ -1,0 +1,3 @@
+model,intent_accuracy,policy_adherence,system_quality,latency_p50_ms,latency_p95_ms,cost_per_1k_requests
+GPT-4o,92,95,87,350,525,0.60
+Mistral_24B_GRPO_RLEF_RLAIF,100,97,97,180,270,0.10
