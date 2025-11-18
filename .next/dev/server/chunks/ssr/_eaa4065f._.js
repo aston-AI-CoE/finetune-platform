@@ -1429,6 +1429,8 @@ var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$re
 var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$file$2d$text$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__$3c$export__default__as__FileText$3e$__ = __turbopack_context__.i("[project]/node_modules/lucide-react/dist/esm/icons/file-text.js [app-ssr] (ecmascript) <export default as FileText>");
 var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$x$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__$3c$export__default__as__X$3e$__ = __turbopack_context__.i("[project]/node_modules/lucide-react/dist/esm/icons/x.js [app-ssr] (ecmascript) <export default as X>");
 var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$paperclip$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__$3c$export__default__as__Paperclip$3e$__ = __turbopack_context__.i("[project]/node_modules/lucide-react/dist/esm/icons/paperclip.js [app-ssr] (ecmascript) <export default as Paperclip>");
+var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$user$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__$3c$export__default__as__User$3e$__ = __turbopack_context__.i("[project]/node_modules/lucide-react/dist/esm/icons/user.js [app-ssr] (ecmascript) <export default as User>");
+var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$bot$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__$3c$export__default__as__Bot$3e$__ = __turbopack_context__.i("[project]/node_modules/lucide-react/dist/esm/icons/bot.js [app-ssr] (ecmascript) <export default as Bot>");
 var __TURBOPACK__imported__module__$5b$project$5d2f$store$2f$useStore$2e$ts__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/store/useStore.ts [app-ssr] (ecmascript)");
 'use client';
 ;
@@ -1739,7 +1741,7 @@ function SetupPage() {
                 columnNumber: 7
             }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                className: "flex-1 overflow-y-auto p-6 space-y-4",
+                className: "flex-1 overflow-y-auto p-8 space-y-1",
                 children: [
                     messages.length === 0 && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                         className: "flex items-center justify-center h-full",
@@ -2058,86 +2060,254 @@ function SetupPage() {
                         columnNumber: 9
                     }, this),
                     messages.map((message, index)=>/*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                            className: `flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`,
-                            children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                className: `max-w-3xl rounded-lg p-4 ${message.role === 'user' ? 'bg-[#00A99D] text-zinc-900' : 'bg-zinc-800 text-zinc-100'}`,
-                                children: [
-                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                        className: "text-sm mb-2 opacity-70 uppercase font-semibold tracking-wide",
-                                        children: message.role === 'user' ? 'You' : 'System'
+                            className: `flex gap-4 ${message.role === 'user' ? 'justify-end' : 'justify-start'} group mb-6`,
+                            children: [
+                                message.role === 'assistant' && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                    className: "flex-shrink-0 w-10 h-10 rounded-full bg-gradient-to-br from-[#00A99D] via-[#00A99D] to-[#008c82] flex items-center justify-center shadow-lg ring-2 ring-zinc-800/50 ring-offset-2 ring-offset-zinc-900",
+                                    children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$bot$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__$3c$export__default__as__Bot$3e$__["Bot"], {
+                                        className: "w-5 h-5 text-white drop-shadow-sm"
                                     }, void 0, false, {
                                         fileName: "[project]/components/pages/SetupPage.tsx",
-                                        lineNumber: 387,
-                                        columnNumber: 15
-                                    }, this),
-                                    (message.content || message.isTyping) && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                        className: "text-sm leading-relaxed whitespace-pre-wrap",
-                                        children: [
-                                            message.content,
-                                            message.isTyping && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
-                                                className: "inline-block w-1 h-4 ml-1 bg-current animate-pulse",
-                                                children: "|"
-                                            }, void 0, false, {
-                                                fileName: "[project]/components/pages/SetupPage.tsx",
-                                                lineNumber: 393,
-                                                columnNumber: 40
-                                            }, this)
-                                        ]
-                                    }, void 0, true, {
-                                        fileName: "[project]/components/pages/SetupPage.tsx",
-                                        lineNumber: 391,
-                                        columnNumber: 17
-                                    }, this),
-                                    message.files && message.files.length > 0 && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                        className: "mt-3 space-y-2",
-                                        children: message.files.map((file, fileIndex)=>/*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                                className: `flex items-center gap-2 p-2 rounded ${message.role === 'user' ? 'bg-black/20' : 'bg-zinc-900'}`,
-                                                children: [
-                                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$file$2d$text$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__$3c$export__default__as__FileText$3e$__["FileText"], {
-                                                        className: "w-4 h-4"
-                                                    }, void 0, false, {
-                                                        fileName: "[project]/components/pages/SetupPage.tsx",
-                                                        lineNumber: 405,
-                                                        columnNumber: 23
-                                                    }, this),
-                                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
-                                                        className: "text-xs font-medium",
-                                                        children: file.name
-                                                    }, void 0, false, {
-                                                        fileName: "[project]/components/pages/SetupPage.tsx",
-                                                        lineNumber: 406,
-                                                        columnNumber: 23
-                                                    }, this),
-                                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
-                                                        className: "text-xs opacity-70",
-                                                        children: [
-                                                            "(",
-                                                            (file.size / 1024).toFixed(1),
-                                                            " KB)"
-                                                        ]
-                                                    }, void 0, true, {
-                                                        fileName: "[project]/components/pages/SetupPage.tsx",
-                                                        lineNumber: 407,
-                                                        columnNumber: 23
-                                                    }, this)
-                                                ]
-                                            }, fileIndex, true, {
-                                                fileName: "[project]/components/pages/SetupPage.tsx",
-                                                lineNumber: 399,
-                                                columnNumber: 21
-                                            }, this))
-                                    }, void 0, false, {
-                                        fileName: "[project]/components/pages/SetupPage.tsx",
-                                        lineNumber: 397,
+                                        lineNumber: 382,
                                         columnNumber: 17
                                     }, this)
-                                ]
-                            }, void 0, true, {
-                                fileName: "[project]/components/pages/SetupPage.tsx",
-                                lineNumber: 380,
-                                columnNumber: 13
-                            }, this)
-                        }, index, false, {
+                                }, void 0, false, {
+                                    fileName: "[project]/components/pages/SetupPage.tsx",
+                                    lineNumber: 381,
+                                    columnNumber: 15
+                                }, this),
+                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                    className: `flex flex-col ${message.role === 'user' ? 'items-end' : 'items-start'} max-w-3xl flex-1 min-w-0`,
+                                    children: [
+                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                            className: "flex items-center gap-2 mb-2 px-1.5",
+                                            children: [
+                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
+                                                    className: `text-xs font-semibold tracking-wide ${message.role === 'user' ? 'text-zinc-300' : 'text-zinc-400'}`,
+                                                    children: message.role === 'user' ? 'You' : 'System'
+                                                }, void 0, false, {
+                                                    fileName: "[project]/components/pages/SetupPage.tsx",
+                                                    lineNumber: 387,
+                                                    columnNumber: 17
+                                                }, this),
+                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
+                                                    className: `text-xs ${message.role === 'user' ? 'text-zinc-500' : 'text-zinc-600'}`,
+                                                    children: "•"
+                                                }, void 0, false, {
+                                                    fileName: "[project]/components/pages/SetupPage.tsx",
+                                                    lineNumber: 392,
+                                                    columnNumber: 17
+                                                }, this),
+                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
+                                                    className: `text-xs ${message.role === 'user' ? 'text-zinc-500' : 'text-zinc-600'}`,
+                                                    children: new Date().toLocaleTimeString([], {
+                                                        hour: '2-digit',
+                                                        minute: '2-digit'
+                                                    })
+                                                }, void 0, false, {
+                                                    fileName: "[project]/components/pages/SetupPage.tsx",
+                                                    lineNumber: 395,
+                                                    columnNumber: 17
+                                                }, this)
+                                            ]
+                                        }, void 0, true, {
+                                            fileName: "[project]/components/pages/SetupPage.tsx",
+                                            lineNumber: 386,
+                                            columnNumber: 15
+                                        }, this),
+                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                            className: `relative rounded-2xl px-6 py-5 shadow-xl transition-all duration-200 ${message.role === 'user' ? 'bg-gradient-to-br from-[#00A99D] to-[#008c82] text-white rounded-br-sm shadow-[#00A99D]/25 hover:shadow-2xl hover:shadow-[#00A99D]/30' : 'bg-zinc-800/95 backdrop-blur-sm text-zinc-100 rounded-bl-sm border border-zinc-700/60 hover:border-zinc-600/80 hover:shadow-2xl hover:bg-zinc-800'} ${message.content.length > 1000 ? 'max-h-[600px] overflow-y-auto message-scroll' : ''}`,
+                                            children: [
+                                                (message.content || message.isTyping) && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                                    className: `text-[15px] leading-[1.75] break-words font-normal antialiased ${message.role === 'assistant' ? 'text-zinc-50' : 'text-white'}`,
+                                                    children: [
+                                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                                            className: "message-content",
+                                                            children: message.content.split('\n').map((line, index, array)=>{
+                                                                const trimmed = line.trim();
+                                                                const isSeparator = trimmed.startsWith('━') || trimmed.startsWith('─') || trimmed === '---';
+                                                                const isEmpty = trimmed === '';
+                                                                const hasBullet = trimmed.startsWith('•') || trimmed.startsWith('-') && trimmed.length > 1;
+                                                                const isIndentedBullet = line.match(/^\s{2,}[•\-]/);
+                                                                // Handle separator lines
+                                                                if (isSeparator) {
+                                                                    return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                                                        className: `h-[1px] my-6 ${message.role === 'assistant' ? 'bg-gradient-to-r from-transparent via-zinc-600/40 to-transparent' : 'bg-gradient-to-r from-transparent via-white/25 to-transparent'}`
+                                                                    }, index, false, {
+                                                                        fileName: "[project]/components/pages/SetupPage.tsx",
+                                                                        lineNumber: 423,
+                                                                        columnNumber: 29
+                                                                    }, this);
+                                                                }
+                                                                // Handle section headers (all caps, short lines, not bullets)
+                                                                if (trimmed.length > 0 && trimmed.length < 50 && trimmed === trimmed.toUpperCase() && trimmed.length > 3 && !hasBullet) {
+                                                                    return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                                                        className: `font-bold text-base mt-7 mb-4 first:mt-0 tracking-tight ${message.role === 'assistant' ? 'text-zinc-50' : 'text-white'}`,
+                                                                        children: line
+                                                                    }, index, false, {
+                                                                        fileName: "[project]/components/pages/SetupPage.tsx",
+                                                                        lineNumber: 437,
+                                                                        columnNumber: 29
+                                                                    }, this);
+                                                                }
+                                                                // Handle bullet points with nice styling
+                                                                if (hasBullet || isIndentedBullet) {
+                                                                    const bulletMatch = line.match(/^(\s*)[•\-]\s*(.*)$/);
+                                                                    if (bulletMatch) {
+                                                                        const [, spaces, content] = bulletMatch;
+                                                                        const indentLevel = spaces.length;
+                                                                        const isSubBullet = indentLevel >= 2;
+                                                                        if (!content.trim() && trimmed.length <= 2) {
+                                                                            return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                                                                className: "h-0.5"
+                                                                            }, index, false, {
+                                                                                fileName: "[project]/components/pages/SetupPage.tsx",
+                                                                                lineNumber: 454,
+                                                                                columnNumber: 38
+                                                                            }, this);
+                                                                        }
+                                                                        return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                                                            className: `flex items-start gap-3 ${isSubBullet ? 'ml-4' : ''} my-0.5`,
+                                                                            children: [
+                                                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
+                                                                                    className: `mt-[7px] ${isSubBullet ? 'text-sm' : 'text-lg'} leading-none flex-shrink-0 ${message.role === 'assistant' ? isSubBullet ? 'text-zinc-500' : 'text-zinc-400' : isSubBullet ? 'text-white/75' : 'text-white/90'}`,
+                                                                                    children: isSubBullet ? '◦' : '•'
+                                                                                }, void 0, false, {
+                                                                                    fileName: "[project]/components/pages/SetupPage.tsx",
+                                                                                    lineNumber: 459,
+                                                                                    columnNumber: 33
+                                                                                }, this),
+                                                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
+                                                                                    className: "flex-1 leading-[1.75]",
+                                                                                    children: content || '\u00A0'
+                                                                                }, void 0, false, {
+                                                                                    fileName: "[project]/components/pages/SetupPage.tsx",
+                                                                                    lineNumber: 464,
+                                                                                    columnNumber: 33
+                                                                                }, this)
+                                                                            ]
+                                                                        }, index, true, {
+                                                                            fileName: "[project]/components/pages/SetupPage.tsx",
+                                                                            lineNumber: 458,
+                                                                            columnNumber: 31
+                                                                        }, this);
+                                                                    }
+                                                                }
+                                                                // Regular content - preserve original formatting with nice spacing
+                                                                return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                                                    className: `leading-[1.75] ${isEmpty ? 'h-1.5' : 'my-0.5'}`,
+                                                                    children: isEmpty ? '\u00A0' : line
+                                                                }, index, false, {
+                                                                    fileName: "[project]/components/pages/SetupPage.tsx",
+                                                                    lineNumber: 472,
+                                                                    columnNumber: 27
+                                                                }, this);
+                                                            })
+                                                        }, void 0, false, {
+                                                            fileName: "[project]/components/pages/SetupPage.tsx",
+                                                            lineNumber: 412,
+                                                            columnNumber: 21
+                                                        }, this),
+                                                        message.isTyping && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
+                                                            className: "inline-block w-1.5 h-4 ml-1.5 bg-current animate-pulse align-middle mt-1",
+                                                            children: "|"
+                                                        }, void 0, false, {
+                                                            fileName: "[project]/components/pages/SetupPage.tsx",
+                                                            lineNumber: 479,
+                                                            columnNumber: 23
+                                                        }, this)
+                                                    ]
+                                                }, void 0, true, {
+                                                    fileName: "[project]/components/pages/SetupPage.tsx",
+                                                    lineNumber: 409,
+                                                    columnNumber: 19
+                                                }, this),
+                                                message.files && message.files.length > 0 && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                                    className: "mt-4 space-y-2.5",
+                                                    children: message.files.map((file, fileIndex)=>/*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                                            className: `flex items-center gap-3 p-3 rounded-xl transition-all ${message.role === 'user' ? 'bg-white/15 backdrop-blur-sm border border-white/20 hover:bg-white/20' : 'bg-zinc-900/60 border border-zinc-700/60 hover:bg-zinc-900/80'}`,
+                                                            children: [
+                                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                                                    className: `p-1.5 rounded-lg ${message.role === 'user' ? 'bg-white/20' : 'bg-zinc-700/50'}`,
+                                                                    children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$file$2d$text$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__$3c$export__default__as__FileText$3e$__["FileText"], {
+                                                                        className: `w-4 h-4 ${message.role === 'user' ? 'text-white' : 'text-zinc-300'}`
+                                                                    }, void 0, false, {
+                                                                        fileName: "[project]/components/pages/SetupPage.tsx",
+                                                                        lineNumber: 499,
+                                                                        columnNumber: 27
+                                                                    }, this)
+                                                                }, void 0, false, {
+                                                                    fileName: "[project]/components/pages/SetupPage.tsx",
+                                                                    lineNumber: 494,
+                                                                    columnNumber: 25
+                                                                }, this),
+                                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                                                    className: "flex-1 min-w-0",
+                                                                    children: [
+                                                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
+                                                                            className: `text-sm font-medium block truncate ${message.role === 'user' ? 'text-white' : 'text-zinc-200'}`,
+                                                                            children: file.name
+                                                                        }, void 0, false, {
+                                                                            fileName: "[project]/components/pages/SetupPage.tsx",
+                                                                            lineNumber: 504,
+                                                                            columnNumber: 27
+                                                                        }, this),
+                                                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
+                                                                            className: `text-xs mt-0.5 ${message.role === 'user' ? 'text-white/70' : 'text-zinc-500'}`,
+                                                                            children: [
+                                                                                (file.size / 1024).toFixed(1),
+                                                                                " KB"
+                                                                            ]
+                                                                        }, void 0, true, {
+                                                                            fileName: "[project]/components/pages/SetupPage.tsx",
+                                                                            lineNumber: 509,
+                                                                            columnNumber: 27
+                                                                        }, this)
+                                                                    ]
+                                                                }, void 0, true, {
+                                                                    fileName: "[project]/components/pages/SetupPage.tsx",
+                                                                    lineNumber: 503,
+                                                                    columnNumber: 25
+                                                                }, this)
+                                                            ]
+                                                        }, fileIndex, true, {
+                                                            fileName: "[project]/components/pages/SetupPage.tsx",
+                                                            lineNumber: 486,
+                                                            columnNumber: 23
+                                                        }, this))
+                                                }, void 0, false, {
+                                                    fileName: "[project]/components/pages/SetupPage.tsx",
+                                                    lineNumber: 484,
+                                                    columnNumber: 19
+                                                }, this)
+                                            ]
+                                        }, void 0, true, {
+                                            fileName: "[project]/components/pages/SetupPage.tsx",
+                                            lineNumber: 401,
+                                            columnNumber: 15
+                                        }, this)
+                                    ]
+                                }, void 0, true, {
+                                    fileName: "[project]/components/pages/SetupPage.tsx",
+                                    lineNumber: 385,
+                                    columnNumber: 13
+                                }, this),
+                                message.role === 'user' && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                    className: "flex-shrink-0 w-10 h-10 rounded-full bg-gradient-to-br from-zinc-600 via-zinc-600 to-zinc-700 flex items-center justify-center shadow-lg ring-2 ring-zinc-800/50 ring-offset-2 ring-offset-zinc-900",
+                                    children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$user$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__$3c$export__default__as__User$3e$__["User"], {
+                                        className: "w-5 h-5 text-white drop-shadow-sm"
+                                    }, void 0, false, {
+                                        fileName: "[project]/components/pages/SetupPage.tsx",
+                                        lineNumber: 523,
+                                        columnNumber: 17
+                                    }, this)
+                                }, void 0, false, {
+                                    fileName: "[project]/components/pages/SetupPage.tsx",
+                                    lineNumber: 522,
+                                    columnNumber: 15
+                                }, this)
+                            ]
+                        }, index, true, {
                             fileName: "[project]/components/pages/SetupPage.tsx",
                             lineNumber: 376,
                             columnNumber: 11
@@ -2146,7 +2316,7 @@ function SetupPage() {
                         ref: messagesEndRef
                     }, void 0, false, {
                         fileName: "[project]/components/pages/SetupPage.tsx",
-                        lineNumber: 415,
+                        lineNumber: 528,
                         columnNumber: 9
                     }, this)
                 ]
@@ -2172,7 +2342,7 @@ function SetupPage() {
                                                     className: "w-4 h-4 text-[#00A99D]"
                                                 }, void 0, false, {
                                                     fileName: "[project]/components/pages/SetupPage.tsx",
-                                                    lineNumber: 430,
+                                                    lineNumber: 543,
                                                     columnNumber: 21
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -2180,7 +2350,7 @@ function SetupPage() {
                                                     children: file.name
                                                 }, void 0, false, {
                                                     fileName: "[project]/components/pages/SetupPage.tsx",
-                                                    lineNumber: 431,
+                                                    lineNumber: 544,
                                                     columnNumber: 21
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -2192,13 +2362,13 @@ function SetupPage() {
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/components/pages/SetupPage.tsx",
-                                                    lineNumber: 432,
+                                                    lineNumber: 545,
                                                     columnNumber: 21
                                                 }, this)
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/components/pages/SetupPage.tsx",
-                                            lineNumber: 429,
+                                            lineNumber: 542,
                                             columnNumber: 19
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$button$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Button"], {
@@ -2210,23 +2380,23 @@ function SetupPage() {
                                                 className: "w-4 h-4"
                                             }, void 0, false, {
                                                 fileName: "[project]/components/pages/SetupPage.tsx",
-                                                lineNumber: 440,
+                                                lineNumber: 553,
                                                 columnNumber: 21
                                             }, this)
                                         }, void 0, false, {
                                             fileName: "[project]/components/pages/SetupPage.tsx",
-                                            lineNumber: 434,
+                                            lineNumber: 547,
                                             columnNumber: 19
                                         }, this)
                                     ]
                                 }, index, true, {
                                     fileName: "[project]/components/pages/SetupPage.tsx",
-                                    lineNumber: 425,
+                                    lineNumber: 538,
                                     columnNumber: 17
                                 }, this))
                         }, void 0, false, {
                             fileName: "[project]/components/pages/SetupPage.tsx",
-                            lineNumber: 423,
+                            lineNumber: 536,
                             columnNumber: 13
                         }, this),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -2248,12 +2418,12 @@ function SetupPage() {
                                         rows: 3
                                     }, void 0, false, {
                                         fileName: "[project]/components/pages/SetupPage.tsx",
-                                        lineNumber: 449,
+                                        lineNumber: 562,
                                         columnNumber: 15
                                     }, this)
                                 }, void 0, false, {
                                     fileName: "[project]/components/pages/SetupPage.tsx",
-                                    lineNumber: 448,
+                                    lineNumber: 561,
                                     columnNumber: 13
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -2271,7 +2441,7 @@ function SetupPage() {
                                                     className: "hidden"
                                                 }, void 0, false, {
                                                     fileName: "[project]/components/pages/SetupPage.tsx",
-                                                    lineNumber: 465,
+                                                    lineNumber: 578,
                                                     columnNumber: 17
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$button$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Button"], {
@@ -2284,20 +2454,20 @@ function SetupPage() {
                                                             className: "w-4 h-4 mr-2"
                                                         }, void 0, false, {
                                                             fileName: "[project]/components/pages/SetupPage.tsx",
-                                                            lineNumber: 479,
+                                                            lineNumber: 592,
                                                             columnNumber: 19
                                                         }, this),
                                                         "Attach Files"
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/components/pages/SetupPage.tsx",
-                                                    lineNumber: 473,
+                                                    lineNumber: 586,
                                                     columnNumber: 17
                                                 }, this)
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/components/pages/SetupPage.tsx",
-                                            lineNumber: 464,
+                                            lineNumber: 577,
                                             columnNumber: 15
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -2311,7 +2481,7 @@ function SetupPage() {
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/components/pages/SetupPage.tsx",
-                                                    lineNumber: 484,
+                                                    lineNumber: 597,
                                                     columnNumber: 17
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$button$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Button"], {
@@ -2323,38 +2493,38 @@ function SetupPage() {
                                                             children: "Send"
                                                         }, void 0, false, {
                                                             fileName: "[project]/components/pages/SetupPage.tsx",
-                                                            lineNumber: 490,
+                                                            lineNumber: 603,
                                                             columnNumber: 19
                                                         }, this),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$send$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__$3c$export__default__as__Send$3e$__["Send"], {
                                                             className: "w-4 h-4 ml-2"
                                                         }, void 0, false, {
                                                             fileName: "[project]/components/pages/SetupPage.tsx",
-                                                            lineNumber: 491,
+                                                            lineNumber: 604,
                                                             columnNumber: 19
                                                         }, this)
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/components/pages/SetupPage.tsx",
-                                                    lineNumber: 485,
+                                                    lineNumber: 598,
                                                     columnNumber: 17
                                                 }, this)
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/components/pages/SetupPage.tsx",
-                                            lineNumber: 483,
+                                            lineNumber: 596,
                                             columnNumber: 15
                                         }, this)
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/components/pages/SetupPage.tsx",
-                                    lineNumber: 463,
+                                    lineNumber: 576,
                                     columnNumber: 13
                                 }, this)
                             ]
                         }, void 0, true, {
                             fileName: "[project]/components/pages/SetupPage.tsx",
-                            lineNumber: 447,
+                            lineNumber: 560,
                             columnNumber: 11
                         }, this),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -2366,7 +2536,7 @@ function SetupPage() {
                                     children: "Enter"
                                 }, void 0, false, {
                                     fileName: "[project]/components/pages/SetupPage.tsx",
-                                    lineNumber: 497,
+                                    lineNumber: 610,
                                     columnNumber: 19
                                 }, this),
                                 " to send, ",
@@ -2375,25 +2545,25 @@ function SetupPage() {
                                     children: "Shift + Enter"
                                 }, void 0, false, {
                                     fileName: "[project]/components/pages/SetupPage.tsx",
-                                    lineNumber: 497,
+                                    lineNumber: 610,
                                     columnNumber: 126
                                 }, this),
                                 " for new line"
                             ]
                         }, void 0, true, {
                             fileName: "[project]/components/pages/SetupPage.tsx",
-                            lineNumber: 496,
+                            lineNumber: 609,
                             columnNumber: 11
                         }, this)
                     ]
                 }, void 0, true, {
                     fileName: "[project]/components/pages/SetupPage.tsx",
-                    lineNumber: 420,
+                    lineNumber: 533,
                     columnNumber: 9
                 }, this)
             }, void 0, false, {
                 fileName: "[project]/components/pages/SetupPage.tsx",
-                lineNumber: 419,
+                lineNumber: 532,
                 columnNumber: 7
             }, this)
         ]

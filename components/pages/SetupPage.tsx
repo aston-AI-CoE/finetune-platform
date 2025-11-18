@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Textarea } from '@/components/ui/textarea';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
-import { Upload, Send, ArrowRight, CheckCircle2, Sparkles, FileText, X, Paperclip } from 'lucide-react';
+import { Upload, Send, ArrowRight, CheckCircle2, Sparkles, FileText, X, Paperclip, User, Bot } from 'lucide-react';
 import { useStore } from '@/store/useStore';
 
 interface Message {
@@ -269,7 +269,7 @@ export function SetupPage() {
       </div>
 
       {/* Chat Messages */}
-      <div className="flex-1 overflow-y-auto p-6 space-y-4">
+      <div className="flex-1 overflow-y-auto p-8 space-y-1">
         {/* Empty state with sample prompts */}
         {messages.length === 0 && (
           <div className="flex items-center justify-center h-full">
@@ -375,41 +375,154 @@ export function SetupPage() {
         {messages.map((message, index) => (
           <div
             key={index}
-            className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
+            className={`flex gap-4 ${message.role === 'user' ? 'justify-end' : 'justify-start'} group mb-6`}
           >
-            <div
-              className={`max-w-3xl rounded-lg p-4 ${
-                message.role === 'user'
-                  ? 'bg-[#00A99D] text-zinc-900'
-                  : 'bg-zinc-800 text-zinc-100'
-              }`}
-            >
-              <div className="text-sm mb-2 opacity-70 uppercase font-semibold tracking-wide">
-                {message.role === 'user' ? 'You' : 'System'}
+            {message.role === 'assistant' && (
+              <div className="flex-shrink-0 w-10 h-10 rounded-full bg-gradient-to-br from-[#00A99D] via-[#00A99D] to-[#008c82] flex items-center justify-center shadow-lg ring-2 ring-zinc-800/50 ring-offset-2 ring-offset-zinc-900">
+                <Bot className="w-5 h-5 text-white drop-shadow-sm" />
               </div>
-              {(message.content || message.isTyping) && (
-                <div className="text-sm leading-relaxed whitespace-pre-wrap">
-                  {message.content}
-                  {message.isTyping && <span className="inline-block w-1 h-4 ml-1 bg-current animate-pulse">|</span>}
-                </div>
-              )}
-              {message.files && message.files.length > 0 && (
-                <div className="mt-3 space-y-2">
-                  {message.files.map((file, fileIndex) => (
-                    <div
-                      key={fileIndex}
-                      className={`flex items-center gap-2 p-2 rounded ${
-                        message.role === 'user' ? 'bg-black/20' : 'bg-zinc-900'
-                      }`}
-                    >
-                      <FileText className="w-4 h-4" />
-                      <span className="text-xs font-medium">{file.name}</span>
-                      <span className="text-xs opacity-70">({(file.size / 1024).toFixed(1)} KB)</span>
+            )}
+            <div className={`flex flex-col ${message.role === 'user' ? 'items-end' : 'items-start'} max-w-3xl flex-1 min-w-0`}>
+              <div className="flex items-center gap-2 mb-2 px-1.5">
+                <span className={`text-xs font-semibold tracking-wide ${
+                  message.role === 'user' ? 'text-zinc-300' : 'text-zinc-400'
+                }`}>
+                  {message.role === 'user' ? 'You' : 'System'}
+                </span>
+                <span className={`text-xs ${
+                  message.role === 'user' ? 'text-zinc-500' : 'text-zinc-600'
+                }`}>•</span>
+                <span className={`text-xs ${
+                  message.role === 'user' ? 'text-zinc-500' : 'text-zinc-600'
+                }`}>
+                  {new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                </span>
+              </div>
+              <div
+                className={`relative rounded-2xl px-6 py-5 shadow-xl transition-all duration-200 ${
+                  message.role === 'user'
+                    ? 'bg-gradient-to-br from-[#00A99D] to-[#008c82] text-white rounded-br-sm shadow-[#00A99D]/25 hover:shadow-2xl hover:shadow-[#00A99D]/30'
+                    : 'bg-zinc-800/95 backdrop-blur-sm text-zinc-100 rounded-bl-sm border border-zinc-700/60 hover:border-zinc-600/80 hover:shadow-2xl hover:bg-zinc-800'
+                } ${message.content.length > 1000 ? 'max-h-[600px] overflow-y-auto message-scroll' : ''}`}
+              >
+                {(message.content || message.isTyping) && (
+                  <div className={`text-[15px] leading-[1.75] break-words font-normal antialiased ${
+                    message.role === 'assistant' ? 'text-zinc-50' : 'text-white'
+                  }`}>
+                    <div className="message-content">
+                      {message.content.split('\n').map((line, index, array) => {
+                        const trimmed = line.trim();
+                        const isSeparator = trimmed.startsWith('━') || trimmed.startsWith('─') || trimmed === '---';
+                        const isEmpty = trimmed === '';
+                        const hasBullet = trimmed.startsWith('•') || (trimmed.startsWith('-') && trimmed.length > 1);
+                        const isIndentedBullet = line.match(/^\s{2,}[•\-]/);
+                        
+                        // Handle separator lines
+                        if (isSeparator) {
+                          return (
+                            <div 
+                              key={index}
+                              className={`h-[1px] my-6 ${
+                                message.role === 'assistant' 
+                                  ? 'bg-gradient-to-r from-transparent via-zinc-600/40 to-transparent' 
+                                  : 'bg-gradient-to-r from-transparent via-white/25 to-transparent'
+                              }`}
+                            />
+                          );
+                        }
+                        
+                        // Handle section headers (all caps, short lines, not bullets)
+                        if (trimmed.length > 0 && trimmed.length < 50 && trimmed === trimmed.toUpperCase() && trimmed.length > 3 && !hasBullet) {
+                          return (
+                            <div key={index} className={`font-bold text-base mt-7 mb-4 first:mt-0 tracking-tight ${
+                              message.role === 'assistant' ? 'text-zinc-50' : 'text-white'
+                            }`}>
+                              {line}
+                            </div>
+                          );
+                        }
+                        
+                        // Handle bullet points with nice styling
+                        if (hasBullet || isIndentedBullet) {
+                          const bulletMatch = line.match(/^(\s*)[•\-]\s*(.*)$/);
+                          if (bulletMatch) {
+                            const [, spaces, content] = bulletMatch;
+                            const indentLevel = spaces.length;
+                            const isSubBullet = indentLevel >= 2;
+                            
+                            if (!content.trim() && trimmed.length <= 2) {
+                              return <div key={index} className="h-0.5" />;
+                            }
+                            
+                            return (
+                              <div key={index} className={`flex items-start gap-3 ${isSubBullet ? 'ml-4' : ''} my-0.5`}>
+                                <span className={`mt-[7px] ${isSubBullet ? 'text-sm' : 'text-lg'} leading-none flex-shrink-0 ${
+                                  message.role === 'assistant' 
+                                    ? isSubBullet ? 'text-zinc-500' : 'text-zinc-400'
+                                    : isSubBullet ? 'text-white/75' : 'text-white/90'
+                                }`}>{isSubBullet ? '◦' : '•'}</span>
+                                <span className="flex-1 leading-[1.75]">{content || '\u00A0'}</span>
+                              </div>
+                            );
+                          }
+                        }
+                        
+                        // Regular content - preserve original formatting with nice spacing
+                        return (
+                          <div key={index} className={`leading-[1.75] ${isEmpty ? 'h-1.5' : 'my-0.5'}`}>
+                            {isEmpty ? '\u00A0' : line}
+                          </div>
+                        );
+                      })}
                     </div>
-                  ))}
-                </div>
-              )}
+                    {message.isTyping && (
+                      <span className="inline-block w-1.5 h-4 ml-1.5 bg-current animate-pulse align-middle mt-1">|</span>
+                    )}
+                  </div>
+                )}
+                {message.files && message.files.length > 0 && (
+                  <div className="mt-4 space-y-2.5">
+                    {message.files.map((file, fileIndex) => (
+                      <div
+                        key={fileIndex}
+                        className={`flex items-center gap-3 p-3 rounded-xl transition-all ${
+                          message.role === 'user' 
+                            ? 'bg-white/15 backdrop-blur-sm border border-white/20 hover:bg-white/20' 
+                            : 'bg-zinc-900/60 border border-zinc-700/60 hover:bg-zinc-900/80'
+                        }`}
+                      >
+                        <div className={`p-1.5 rounded-lg ${
+                          message.role === 'user' 
+                            ? 'bg-white/20' 
+                            : 'bg-zinc-700/50'
+                        }`}>
+                          <FileText className={`w-4 h-4 ${
+                            message.role === 'user' ? 'text-white' : 'text-zinc-300'
+                          }`} />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <span className={`text-sm font-medium block truncate ${
+                            message.role === 'user' ? 'text-white' : 'text-zinc-200'
+                          }`}>
+                            {file.name}
+                          </span>
+                          <span className={`text-xs mt-0.5 ${
+                            message.role === 'user' ? 'text-white/70' : 'text-zinc-500'
+                          }`}>
+                            {(file.size / 1024).toFixed(1)} KB
+                          </span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
             </div>
+            {message.role === 'user' && (
+              <div className="flex-shrink-0 w-10 h-10 rounded-full bg-gradient-to-br from-zinc-600 via-zinc-600 to-zinc-700 flex items-center justify-center shadow-lg ring-2 ring-zinc-800/50 ring-offset-2 ring-offset-zinc-900">
+                <User className="w-5 h-5 text-white drop-shadow-sm" />
+              </div>
+            )}
           </div>
         ))}
         <div ref={messagesEndRef} />
